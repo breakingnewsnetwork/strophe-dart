@@ -14,18 +14,17 @@ import 'package:xml/xml.dart';
 class PubsubBuilder extends StanzaBuilder {
   PubsubBuilder(String name, [Map<String, dynamic> attrs]) : super(name, attrs);
 
-  /** Function: Strophe.Builder.form
-   *  Add an options form child element.
-   *
-   *  Does not change the current element.
-   *
-   *  Parameters:
-   *    (String) ns - form namespace.
-   *    (Object) options - form properties.
-   *
-   *  Returns:
-   *    The Strophe.Builder object.
-   */
+  /// Function: Strophe.Builder.form
+  ///  Add an options form child element.
+  ///
+  ///  Does not change the current element.
+  ///
+  ///  Parameters:
+  ///    (String) ns - form namespace.
+  ///    (Object) options - form properties.
+  ///
+  ///  Returns:
+  ///    The Strophe.Builder object.
   form(String ns, Map<String, dynamic> options) {
     XmlNode xmlElement = Strophe.xmlElement('x', attrs: {"xmlns": "jabber:x:data", "type": "submit"});
     PubsubBuilder aX = this.cnode(xmlElement);
@@ -36,20 +35,19 @@ class PubsubBuilder extends StanzaBuilder {
     return this;
   }
 
-  /** Function: Strophe.Builder.list
-   *  Add many child elements.
-   *
-   *  Does not change the current element.
-   *
-   *  Parameters:
-   *    (String) tag - tag name for children.
-   *    (Array) array - list of objects with format:
-   *          { attrs: { [string]:[string], ... } // attributes of each tag element
-   *             data: [string | XML_element] }    // contents of each tag element
-   *
-   *  Returns:
-   *    The Strophe.Builder object.
-   */
+  /// Function: Strophe.Builder.list
+  ///  Add many child elements.
+  ///
+  ///  Does not change the current element.
+  ///
+  ///  Parameters:
+  ///    (String) tag - tag name for children.
+  ///    (Array) array - list of objects with format:
+  ///          { attrs: { [string]:[string], ... } // attributes of each tag element
+  ///             data: [string | XML_element] }    // contents of each tag element
+  ///
+  ///  Returns:
+  ///    The Strophe.Builder object.
   list(String tag, List<Map<String, dynamic>> array) {
     if (array == null) return this;
     for (int i = 0; i < array.length; ++i) {
@@ -160,11 +158,10 @@ Extend connection object to have plugin name 'pubsub'.
     this._autoService = false;
   }
 
-  /***Function
-      Parameters:
-      (String) node - The name of node
-      (String) handler - reference to registered strophe handler
-   */
+  ///Function
+  ///Parameters:
+  ///(String) node - The name of node
+  ///(String) handler - reference to registered strophe handler
   storeHandler(String node, StanzaHandler handler) {
     if (this.handler[node] == null) {
       this.handler[node] = [];
@@ -172,10 +169,9 @@ Extend connection object to have plugin name 'pubsub'.
     this.handler[node].add(handler);
   }
 
-  /***Function
-      Parameters:
-      (String) node - The name of node
-   */
+  ///Function
+  ///Parameters:
+  ///(String) node - The name of node
   removeHandler(String node) {
     List<StanzaHandler> toberemoved = this.handler[node];
     this.handler[node] = [];
@@ -188,17 +184,18 @@ Extend connection object to have plugin name 'pubsub'.
     }
   }
 
-  /***Function
-      Create a pubsub node on the given service with the given node
-      name.
-      Parameters:
-      (String) node -  The name of the pubsub node.
-      (Dictionary) options -  The configuration options for the  node.
-      (Function) call_back - Used to determine if node
-      creation was sucessful.
-      Returns:
-      Iq id used to send subscription.
-   */
+  ///Function
+  ///Create a pubsub node on the given service with the given node
+  ///name.
+  ///
+  ///Parameters:
+  ///(String) node -  The name of the pubsub node.
+  ///(Dictionary) options -  The configuration options for the  node.
+  ///(Function) call_back - Used to determine if node
+  ///creation was sucessful.
+  ///
+  ///Returns:
+  ///Iq id used to send subscription.
   createNode(String node, [String service, Map<String, dynamic> options, Function callback]) {
     String iqid = this.connection.getUniqueId("pubsubcreatenode");
     service = service != null && service.isNotEmpty ? service : this.service;
@@ -213,16 +210,15 @@ Extend connection object to have plugin name 'pubsub'.
     return iqid;
   }
 
-  /** Function: deleteNode
-   *  Delete a pubsub node.
-   *
-   *  Parameters:
-   *    (String) node -  The name of the pubsub node.
-   *    (Function) call_back - Called on server response.
-   *
-   *  Returns:
-   *    Iq id
-   */
+  /// Function: deleteNode
+  ///  Delete a pubsub node.
+  ///
+  ///  Parameters:
+  ///    (String) node -  The name of the pubsub node.
+  ///    (Function) call_back - Called on server response.
+  ///
+  ///  Returns:
+  ///    Iq id
   deleteNode(String node, [Function callback]) {
     String iqid = this.connection.getUniqueId("pubsubdeletenode");
 
@@ -235,15 +231,14 @@ Extend connection object to have plugin name 'pubsub'.
     return iqid;
   }
 
-  /** Function
-   *
-   * Get all nodes this.connection currently exist.
-   *
-   * Parameters:
-   *   (Function) success - Used to determine if node creation was sucessful.
-   *   (Function) error - Used to determine if node
-   * creation had errors.
-   */
+  /// Function
+  ///
+  /// Get all nodes this.connection currently exist.
+  ///
+  /// Parameters:
+  ///   (Function) success - Used to determine if node creation was sucessful.
+  ///   (Function) error - Used to determine if node
+  /// creation had errors.
   discoverNodes([String service, Function success, Function error, int timeout]) {
     //ask for all nodes
     service = service != null && service.isNotEmpty ? service : this.service;
@@ -252,16 +247,15 @@ Extend connection object to have plugin name 'pubsub'.
     return this.connection.sendIQ(iq.tree(), success, error, timeout);
   }
 
-  /** Function: getConfig
-   *  Get node configuration form.
-   *
-   *  Parameters:
-   *    (String) node -  The name of the pubsub node.
-   *    (Function) call_back - Receives config form.
-   *
-   *  Returns:
-   *    Iq id
-   */
+  /// Function: getConfig
+  ///  Get node configuration form.
+  ///
+  ///  Parameters:
+  ///    (String) node -  The name of the pubsub node.
+  ///    (Function) call_back - Receives config form.
+  ///
+  ///  Returns:
+  ///    Iq id
   getConfig(String node, Function callback) {
     String iqid = this.connection.getUniqueId("pubsubconfigurenode");
 
@@ -274,16 +268,14 @@ Extend connection object to have plugin name 'pubsub'.
     return iqid;
   }
 
-  /**
-   *  Parameters:
-   *    (Function) call_back - Receives subscriptions.
-   *
-   *  http://xmpp.org/extensions/tmp/xep-0060-1.13.html
-   *  8.3 Request Default Node Configuration Options
-   *
-   *  Returns:
-   *    Iq id
-   */
+  ///  Parameters:
+  ///    (Function) call_back - Receives subscriptions.
+  ///
+  ///  http://xmpp.org/extensions/tmp/xep-0060-1.13.html
+  ///  8.3 Request Default Node Configuration Options
+  ///
+  ///  Returns:
+  ///    Iq id
   String getDefaultNodeConfig(Function callback) {
     String iqid = this.connection.getUniqueId("pubsubdefaultnodeconfig");
 
@@ -380,18 +372,17 @@ Extend connection object to have plugin name 'pubsub'.
     return this.connection.sendIQ(iq.tree(), success, error, timeout);
   }
 
-  /** Function: getSubscriptions
-   *  Get subscriptions of a JID.
-   *
-   *  Parameters:
-   *    (Function) call_back - Receives subscriptions.
-   *
-   *  http://xmpp.org/extensions/tmp/xep-0060-1.13.html
-   *  5.6 Retrieve Subscriptions
-   *
-   *  Returns:
-   *    Iq id
-   */
+  /// Function: getSubscriptions
+  ///  Get subscriptions of a JID.
+  ///
+  ///  Parameters:
+  ///    (Function) call_back - Receives subscriptions.
+  ///
+  ///  http://xmpp.org/extensions/tmp/xep-0060-1.13.html
+  ///  5.6 Retrieve Subscriptions
+  ///
+  ///  Returns:
+  ///    Iq id
   getSubscriptions(Function callback) {
     String iqid = this.connection.getUniqueId("pubsubsubscriptions");
 
@@ -404,18 +395,17 @@ Extend connection object to have plugin name 'pubsub'.
     return iqid;
   }
 
-  /** Function: getNodeSubscriptions
-   *  Get node subscriptions of a JID.
-   *
-   *  Parameters:
-   *    (Function) call_back - Receives subscriptions.
-   *
-   *  http://xmpp.org/extensions/tmp/xep-0060-1.13.html
-   *  5.6 Retrieve Subscriptions
-   *
-   *  Returns:
-   *    Iq id
-   */
+  /// Function: getNodeSubscriptions
+  ///  Get node subscriptions of a JID.
+  ///
+  ///  Parameters:
+  ///    (Function) call_back - Receives subscriptions.
+  ///
+  ///  http://xmpp.org/extensions/tmp/xep-0060-1.13.html
+  ///  5.6 Retrieve Subscriptions
+  ///
+  ///  Returns:
+  ///    Iq id
   getNodeSubscriptions(String node, Function callback) {
     String iqid = this.connection.getUniqueId("pubsubsubscriptions");
 
@@ -428,17 +418,16 @@ Extend connection object to have plugin name 'pubsub'.
     return iqid;
   }
 
-  /** Function: getSubOptions
-   *  Get subscription options form.
-   *
-   *  Parameters:
-   *    (String) node -  The name of the pubsub node.
-   *    (String) subid - The subscription id (optional).
-   *    (Function) call_back - Receives options form.
-   *
-   *  Returns:
-   *    Iq id
-   */
+  /// Function: getSubOptions
+  ///  Get subscription options form.
+  ///
+  ///  Parameters:
+  ///    (String) node -  The name of the pubsub node.
+  ///    (String) subid - The subscription id (optional).
+  ///    (Function) call_back - Receives options form.
+  ///
+  ///  Returns:
+  ///    Iq id
   getSubOptions(String node, String subid, Function callback) {
     String iqid = this.connection.getUniqueId("pubsubsuboptions");
 
@@ -452,17 +441,15 @@ Extend connection object to have plugin name 'pubsub'.
     return iqid;
   }
 
-  /**
-   *  Parameters:
-   *    (String) node -  The name of the pubsub node.
-   *    (Function) call_back - Receives subscriptions.
-   *
-   *  http://xmpp.org/extensions/tmp/xep-0060-1.13.html
-   *  8.9 Manage Affiliations - 8.9.1.1 Request
-   *
-   *  Returns:
-   *    Iq id
-   */
+  ///  Parameters:
+  ///    (String) node -  The name of the pubsub node.
+  ///    (Function) call_back - Receives subscriptions.
+  ///
+  ///  http://xmpp.org/extensions/tmp/xep-0060-1.13.html
+  ///  8.9 Manage Affiliations - 8.9.1.1 Request
+  ///
+  ///  Returns:
+  ///    Iq id
   getAffiliations(String node, Function callback) {
     String iqid = this.connection.getUniqueId("pubsubaffiliations");
 
@@ -480,17 +467,15 @@ Extend connection object to have plugin name 'pubsub'.
     return iqid;
   }
 
-  /**
-   *  Parameters:
-   *    (String) node -  The name of the pubsub node.
-   *    (Function) call_back - Receives subscriptions.
-   *
-   *  http://xmpp.org/extensions/tmp/xep-0060-1.13.html
-   *  8.9.2 Modify Affiliation - 8.9.2.1 Request
-   *
-   *  Returns:
-   *    Iq id
-   */
+  ///  Parameters:
+  ///    (String) node -  The name of the pubsub node.
+  ///    (Function) call_back - Receives subscriptions.
+  ///
+  ///  http://xmpp.org/extensions/tmp/xep-0060-1.13.html
+  ///  8.9.2 Modify Affiliation - 8.9.2.1 Request
+  ///
+  ///  Returns:
+  ///    Iq id
   setAffiliation(String node, String jid, String affiliation, Function callback) {
     String iqid = this.connection.getUniqueId("pubsubaffiliations");
 
@@ -503,8 +488,7 @@ Extend connection object to have plugin name 'pubsub'.
     return iqid;
   }
 
-  /** Function: publishAtom
-   */
+  /// Function: publishAtom
   publishAtom(String node, List atoms, Function callback) {
     Map<String, dynamic> atom;
     List<Map<String, dynamic>> entries = [];

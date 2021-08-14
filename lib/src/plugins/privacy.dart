@@ -90,19 +90,18 @@ class PrivacyPlugin extends PluginClass {
     return this.lists[name];
   }
 
-  /** Function: newItem
-   *  Create new item.
-   *
-   *  Params:
-   *    (String) type - Type of item.
-   *    (String) value - Value of item.
-   *    (String) action - Action for the matching.
-   *    (String) order - Order of rule.
-   *    (String) blocked - Block list.
-   *
-   *  Returns:
-   *    New list, or existing list if it exists.
-   */
+  /// Function: newItem
+  ///  Create new item.
+  ///
+  ///  Params:
+  ///    (String) type - Type of item.
+  ///    (String) value - Value of item.
+  ///    (String) action - Action for the matching.
+  ///    (String) order - Order of rule.
+  ///    (String) blocked - Block list.
+  ///
+  ///  Returns:
+  ///    New list, or existing list if it exists.
   PrivacyItem newItem(String type, String value, String action, int order, List<String> blocked) {
     PrivacyItem item = new PrivacyItem();
     item.type = type;
@@ -113,14 +112,13 @@ class PrivacyPlugin extends PluginClass {
     return item;
   }
 
-  /** Function: deleteList
-   *  Delete list.
-   *
-   *  Params:
-   *    (String) name - List name.
-   *    (Function) successCallback - Called upon successful deletion.
-   *    (Function) failCallback - Called upon fail deletion.
-   */
+  /// Function: deleteList
+  ///  Delete list.
+  ///
+  ///  Params:
+  ///    (String) name - List name.
+  ///    (Function) successCallback - Called upon successful deletion.
+  ///    (Function) failCallback - Called upon fail deletion.
   deleteList(String name, Function successCallback, Function failCallback) {
     name = name ?? '';
     this.connection.sendIQ(
@@ -136,17 +134,16 @@ class PrivacyPlugin extends PluginClass {
     }, failCallback);
   }
 
-  /** Function: saveList
-   *  Saves list.
-   *
-   *  Params:
-   *    (String) name - List name.
-   *    (Function) successCallback - Called upon successful setting.
-   *    (Function) failCallback - Called upon fail setting.
-   *
-   *  Returns:
-   *    True if list is ok, and is sent to server, false otherwise.
-   */
+  /// Function: saveList
+  ///  Saves list.
+  ///
+  ///  Params:
+  ///    (String) name - List name.
+  ///    (Function) successCallback - Called upon successful setting.
+  ///    (Function) failCallback - Called upon fail setting.
+  ///
+  ///  Returns:
+  ///    True if list is ok, and is sent to server, false otherwise.
   saveList(String name, [Function successCallback, Function failCallback]) {
     if (this.lists[name] == null) {
       Strophe.error("Trying to save uninitialized list");
@@ -181,14 +178,13 @@ class PrivacyPlugin extends PluginClass {
     return true;
   }
 
-  /** Function: loadList
-   *  Loads list from server
-   *
-   *  Params:
-   *    (String) name - List name.
-   *    (Function) successCallback - Called upon successful load.
-   *    (Function) failCallback - Called upon fail load.
-   */
+  /// Function: loadList
+  ///  Loads list from server
+  ///
+  ///  Params:
+  ///    (String) name - List name.
+  ///    (Function) successCallback - Called upon successful load.
+  ///    (Function) failCallback - Called upon fail load.
   loadList(String name, [Function successCallback, Function failCallback]) {
     name = name ?? '';
     this.connection.sendIQ(
@@ -217,7 +213,6 @@ class PrivacyPlugin extends PluginClass {
               int.parse(item.getAttribute('order')) ?? 0, blocks));
         }
       }
-      this.lists[name];
       if (successCallback != null)
         try {
           successCallback();
@@ -227,14 +222,13 @@ class PrivacyPlugin extends PluginClass {
     }, failCallback);
   }
 
-  /** Function: setActive
-   *  Sets given list as active.
-   *
-   *  Params:
-   *    (String) name - List name.
-   *    (Function) successCallback - Called upon successful setting.
-   *    (Function) failCallback - Called upon fail setting.
-   */
+  /// Function: setActive
+  ///  Sets given list as active.
+  ///
+  ///  Params:
+  ///    (String) name - List name.
+  ///    (Function) successCallback - Called upon successful setting.
+  ///    (Function) failCallback - Called upon fail setting.
   setActive(String name, [Function successCallback, Function failCallback]) {
     StanzaBuilder iq =
         Strophe.$iq({'type': "set", 'id': this.connection.getUniqueId("privacy")}).c("query", {'xmlns': Strophe.NS['PRIVACY']}).c("active");
@@ -250,21 +244,19 @@ class PrivacyPlugin extends PluginClass {
     }, failCallback);
   }
 
-  /** Function: getActive
-   *  Returns currently active list of null.
-   */
+  /// Function: getActive
+  ///  Returns currently active list of null.
   String getActive() {
     return this._active;
   }
 
-  /** Function: setDefault
-   *  Sets given list as default.
-   *
-   *  Params:
-   *    (String) name - List name.
-   *    (Function) successCallback - Called upon successful setting.
-   *    (Function) failCallback - Called upon fail setting.
-   */
+  /// Function: setDefault
+  ///  Sets given list as default.
+  ///
+  ///  Params:
+  ///    (String) name - List name.
+  ///    (Function) successCallback - Called upon successful setting.
+  ///    (Function) failCallback - Called upon fail setting.
   setDefault(String name, [Function successCallback, Function failCallback]) {
     StanzaBuilder iq =
         Strophe.$iq({'type': "set", 'id': this.connection.getUniqueId("privacy")}).c("query", {'xmlns': Strophe.NS['PRIVACY']}).c("default");
@@ -280,49 +272,41 @@ class PrivacyPlugin extends PluginClass {
     }, failCallback);
   }
 
-  /** Function: getDefault
-   *  Returns currently default list of null.
-   */
+  /// Function: getDefault
+  ///  Returns currently default list of null.
   String getDefault() {
     return this._default;
   }
 }
 
-/**
- * Class: PrivacyItem
- * Describes single rule.
- */
+/// Class: PrivacyItem
+/// Describes single rule.
 class PrivacyItem {
-  /** Variable: type
-   *  One of [jid, group, subscription].
-   */
+  /// Variable: type
+  ///  One of [jid, group, subscription].
   String type;
   String value;
 
-  /** Variable: action
-   *  One of [allow, deny].
-   *
-   *  Not null. Action to be execute.
-   */
+  /// Variable: action
+  ///  One of [allow, deny].
+  ///
+  ///  Not null. Action to be execute.
   String action;
 
-  /** Variable: order
-   *  The order in which privacy list items are processed.
-   *
-   *  Unique, not-null, non-negative integer.
-   */
+  /// Variable: order
+  ///  The order in which privacy list items are processed.
+  ///
+  ///  Unique, not-null, non-negative integer.
   int order;
 
-  /** Variable: blocked
-   *  List of blocked stanzas.
-   *
-   *  One or more of [message, iq, presence-in, presence-out]. Empty set is equivalent to all.
-   */
+  /// Variable: blocked
+  ///  List of blocked stanzas.
+  ///
+  ///  One or more of [message, iq, presence-in, presence-out]. Empty set is equivalent to all.
   List<String> blocked = [];
 
-  /** Function: validate
-   *  Checks if item is of valid structure
-   */
+  /// Function: validate
+  ///  Checks if item is of valid structure
   bool validate() {
     if (["jid", "group", "subscription", ""].indexOf(this.type) < 0) return false;
     if (this.type == "subscription") {
@@ -343,9 +327,8 @@ class PrivacyItem {
     return true;
   }
 
-  /** Function: copy
-   *  Copy one item into another.
-   */
+  /// Function: copy
+  ///  Copy one item into another.
   copy(PrivacyItem item) {
     this.type = item.type;
     this.value = item.value;
@@ -355,30 +338,25 @@ class PrivacyItem {
   }
 }
 
-/**
- * Class: List
- * Contains list of rules. There is no layering.
- */
+/// Class: List
+/// Contains list of rules. There is no layering.
 class PrivacyList {
   PrivacyList(this._name, this._isPulled);
 
-  /** PrivateVariable: _name
-   *  List name.
-   *
-   *  Not changeable. Create new, copy this one, and delete, if you wish to rename.
-   */
+  /// PrivateVariable: _name
+  ///  List name.
+  ///
+  ///  Not changeable. Create new, copy this one, and delete, if you wish to rename.
   String _name;
 
-  /** PrivateVariable: _isPulled
-   *  If list is pulled from server and up to date.
-   *
-   *  Is false upon first getting of list of lists, or after getting stanza about update
-   */
+  /// PrivateVariable: _isPulled
+  ///  If list is pulled from server and up to date.
+  ///
+  ///  Is false upon first getting of list of lists, or after getting stanza about update
   bool _isPulled;
 
-  /** Variable: items
-   *  Items of this list.
-   */
+  /// Variable: items
+  ///  Items of this list.
   List<PrivacyItem> items = [];
 
   /// Function: getName

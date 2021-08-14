@@ -295,15 +295,14 @@ class RegisterPlugin extends PluginClass {
     conn.sendIQ(query.tree());
   }
 
-  /** PrivateFunction: _submit_cb
-     *  _Private_ handler for submitted registration information.
-     *
-     *  Parameters:
-     *    (XMLElement) elem - The query stanza.
-     *
-     *  Returns:
-     *    false to remove the handler.
-     */
+  /// PrivateFunction: _submit_cb
+  ///  _Private_ handler for submitted registration information.
+  ///
+  ///  Parameters:
+  ///   (XMLElement) elem - The query stanza.
+  ///
+  ///   Returns:
+  ///     false to remove the handler.
   _submit_cb(XmlElement stanza) {
     XmlElement field;
     List<XmlElement> errors;

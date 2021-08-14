@@ -6,7 +6,7 @@ class SHA1 {
   static const mask32 = 0xFFFFFFFF;
 
   static Future<List<int>> core_sha1(List<int> chunk, int len) async {
-    List<int> digest = List<int>(5);
+    List<int> digest = List<int>.filled(5, 0);
     digest[0] = 0x67452301;
     digest[1] = 0xEFCDAB89;
     digest[2] = 0x98BADCFE;
@@ -19,7 +19,7 @@ class SHA1 {
     int d = digest[3];
     int e = digest[4];
 
-    List<int> _extended = List<int>(80);
+    List<int> _extended = List<int>.filled(80, 0);
     int y;
     for (int i = 0; i < 80; i++) {
       if (i < 16) {
@@ -71,7 +71,7 @@ class SHA1 {
       bkey = await core_sha1(bkey, key.length * 8);
     }
 
-    List<int> ipad = new List<int>(16), opad = new List<int>(16);
+    List<int> ipad = new List<int>.filled(16, 0), opad = new List<int>.filled(16, 0);
     int value;
     for (int i = 0; i < 16; i++) {
       value = i < bkey.length ? bkey[i] : 0;

@@ -5,8 +5,8 @@ author: Andre_developer <andredeveloper10@gmail.com>
 homepage: https://github.com/developerandre/strophe-dart
 
 dependencies:
-  xml: ^4.2.0
-  http: ^0.12.1
+  xml: ^5.1.2
+  http: ^0.13.3
   flutter:
     sdk: flutter
 

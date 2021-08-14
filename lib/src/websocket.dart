@@ -227,7 +227,7 @@ class StropheWebSocket extends ServiceType {
       String data = message.replaceAll(new RegExp(r"^(<\?.*?\?>\s*)*"), "");
       if (data == '') return;
 
-      xml.XmlDocument streamStart = xml.parse(data);
+      xml.XmlDocument streamStart = xml.XmlDocument.parse(data);
       this._conn.xmlInput(streamStart.rootElement);
       this._conn.rawInput(message);
 
@@ -239,8 +239,8 @@ class StropheWebSocket extends ServiceType {
     } else if (message.trim().indexOf("<close ") == 0) {
       // <close xmlns="urn:ietf:params:xml:ns:xmpp-framing />
       this._conn.rawInput(message);
-      this._conn.xmlInput(xml.parse(message).rootElement);
-      String seeUri = xml.parse(message).rootElement.getAttribute("see-other-uri");
+      this._conn.xmlInput(xml.XmlDocument.parse(message).rootElement);
+      String seeUri = xml.XmlDocument.parse(message).rootElement.getAttribute("see-other-uri");
       if (seeUri != null && seeUri.isNotEmpty) {
         this._conn.changeConnectStatus(Strophe.Status['REDIRECT'], "Received see-other-uri, resetting connection");
         this._conn.reset();
@@ -252,7 +252,7 @@ class StropheWebSocket extends ServiceType {
       }
     } else {
       String string = this._streamWrap(message);
-      xml.XmlDocument elem = xml.parse(string);
+      xml.XmlDocument elem = xml.XmlDocument.parse(string);
       this.socketListen.onData(this._onMessage);
       this._conn.connectCb(elem, null, message);
     }
@@ -442,20 +442,20 @@ class StropheWebSocket extends ServiceType {
     String close = '<close xmlns="urn:ietf:params:xml:ns:xmpp-framing" />';
     if (message == close) {
       this._conn.rawInput(close);
-      this._conn.xmlInput(xml.parse(message).rootElement);
+      this._conn.xmlInput(xml.XmlDocument.parse(message).rootElement);
       if (!this._conn.disconnecting) {
         this._conn.doDisconnect();
       }
       return;
     } else if (message.trim().indexOf("<open ") == 0) {
       // This handles stream restarts
-      elem = xml.parse(message);
+      elem = xml.XmlDocument.parse(message);
       if (!this._handleStreamStart(elem)) {
         return;
       }
     } else {
       data = this._streamWrap(message);
-      elem = xml.parse(data);
+      elem = xml.XmlDocument.parse(data);
     }
     if (this._checkStreamError(elem, Strophe.Status['ERROR'])) {
       return;

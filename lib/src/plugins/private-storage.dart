@@ -100,9 +100,9 @@ class PrivateStorage extends PluginClass {
   /// (Object) dom - DOM Object
   xml.XmlElement _textToXml(String text) {
     try {
-      return xml.parse(text).rootElement;
+      return xml.XmlDocument.parse(text).rootElement;
     } catch (e) {
-      return xml.parse('<data>$text</data>').rootElement;
+      return xml.XmlDocument.parse('<data>$text</data>').rootElement;
     }
   }
 

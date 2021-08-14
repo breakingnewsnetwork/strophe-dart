@@ -76,25 +76,23 @@ class RosterPlugin extends PluginClass {
     Strophe.addNamespace('NICK', 'http://jabber.org/protocol/nick');
   }
 
-  /** Function: supportVersioning
-   * return true if roster versioning is enabled on server
-   */
+  /// Function: supportVersioning
+  /// return true if roster versioning is enabled on server
   bool supportVersioning() {
     return (this.connection.features != null && this.connection.features.findAllElements('ver').length > 0);
   }
 
-  /** Function: get
-   * Get Roster on server
-   *
-   * Parameters:
-   *   (Function) userCallback - callback on roster result
-   *   (String) ver - current rev of roster
-   *      (only used if roster versioning is enabled)
-   *   (Array) items - initial items of ver
-   *      (only used if roster versioning is enabled)
-   *     In browser context you can use sessionStorage
-   *     to store your roster in json (JSON.stringify())
-   */
+  /// Function: get
+  /// Get Roster on server
+  ///
+  /// Parameters:
+  ///   (Function) userCallback - callback on roster result
+  ///   (String) ver - current rev of roster
+  ///      (only used if roster versioning is enabled)
+  ///   (Array) items - initial items of ver
+  ///      (only used if roster versioning is enabled)
+  ///     In browser context you can use sessionStorage
+  ///     to store your roster in json (JSON.stringify())
   get(Function userCallback, [String ver, List items]) {
     Map<String, String> attrs = {'xmlns': Strophe.NS['ROSTER']};
     this.items = [];
@@ -111,12 +109,11 @@ class RosterPlugin extends PluginClass {
     });
   }
 
-  /** Function: registerCallback
-   * register callback on roster (presence and iq)
-   *
-   * Parameters:
-   *   (Function) callback
-   */
+  /// Function: registerCallback
+  /// register callback on roster (presence and iq)
+  ///
+  /// Parameters:
+  ///   (Function) callback
   registerCallback(Function callback) {
     if (callback != null) this._callbacks.add(callback);
   }
@@ -125,12 +122,11 @@ class RosterPlugin extends PluginClass {
     if (callback != null) this._callbacksRequest.add(callback);
   }
 
-  /** Function: findItem
-   * Find item by JID
-   *
-   * Parameters:
-   *     (String) jid
-   */
+  /// Function: findItem
+  /// Find item by JID
+  ///
+  /// Parameters:
+  ///     (String) jid
   RosterItem findItem(String jid) {
     if (this.items != null) {
       for (int i = 0; i < this.items.length; i++) {
@@ -142,12 +138,11 @@ class RosterPlugin extends PluginClass {
     return null;
   }
 
-  /** Function: removeItem
-   * Remove item by JID
-   *
-   * Parameters:
-   *     (String) jid
-   */
+  /// Function: removeItem
+  /// Remove item by JID
+  ///
+  /// Parameters:
+  ///     (String) jid
   bool removeItem(String jid) {
     for (int i = 0; i < this.items.length; i++) {
       if (this.items[i] != null && this.items[i].jid == jid) {
@@ -158,14 +153,13 @@ class RosterPlugin extends PluginClass {
     return false;
   }
 
-  /** Function: subscribe
-   * Subscribe presence
-   *
-   * Parameters:
-   *     (String) jid
-   *     (String) message (optional)
-   *     (String) nick  (optional)
-   */
+  /// Function: subscribe
+  /// Subscribe presence
+  ///
+  /// Parameters:
+  ///     (String) jid
+  ///     (String) message (optional)
+  ///     (String) nick  (optional)
   subscribe(String jid, [String message, String nick]) {
     StanzaBuilder pres = Strophe.$pres({'to': jid, 'type': "subscribe"});
     if (message != null && message != "") {
@@ -177,54 +171,50 @@ class RosterPlugin extends PluginClass {
     this.connection.send(pres);
   }
 
-  /** Function: unsubscribe
-   * Unsubscribe presence
-   *
-   * Parameters:
-   *     (String) jid
-   *     (String) message
-   */
+  /// Function: unsubscribe
+  /// Unsubscribe presence
+  ///
+  /// Parameters:
+  ///     (String) jid
+  ///     (String) message
   unsubscribe(String jid, [String message]) {
     StanzaBuilder pres = Strophe.$pres({'to': jid, 'type': "unsubscribe"});
     if (message != null && message != "") pres.c("status").t(message);
     this.connection.send(pres);
   }
 
-  /** Function: authorize
-   * Authorize presence subscription
-   *
-   * Parameters:
-   *     (String) jid
-   *     (String) message
-   */
+  /// Function: authorize
+  /// Authorize presence subscription
+  ///
+  /// Parameters:
+  ///     (String) jid
+  ///     (String) message
   authorize(String jid, [String message]) {
     StanzaBuilder pres = Strophe.$pres({'to': jid, 'type': "subscribed"});
     if (message != null && message != "") pres.c("status").t(message);
     this.connection.send(pres);
   }
 
-  /** Function: unauthorize
-   * Unauthorize presence subscription
-   *
-   * Parameters:
-   *     (String) jid
-   *     (String) message
-   */
+  /// Function: unauthorize
+  /// Unauthorize presence subscription
+  ///
+  /// Parameters:
+  ///     (String) jid
+  ///     (String) message
   unauthorize(String jid, [String message]) {
     StanzaBuilder pres = Strophe.$pres({'to': jid, 'type': "unsubscribed"});
     if (message != null && message != "") pres.c("status").t(message);
     this.connection.send(pres);
   }
 
-  /** Function: add
-   * Add roster item
-   *
-   * Parameters:
-   *   (String) jid - item jid
-   *   (String) name - name
-   *   (Array) groups
-   *   (Function) callback
-   */
+  /// Function: add
+  /// Add roster item
+  ///
+  /// Parameters:
+  ///   (String) jid - item jid
+  ///   (String) name - name
+  ///   (Array) groups
+  ///   (Function) callback
   add(String jid, String name, [List<String> groups, Function callback]) {
     StanzaBuilder iq = Strophe.$iq({'type': 'set'}).c('query', {'xmlns': Strophe.NS['ROSTER']}).c('item', {'jid': jid, 'name': name});
     if (groups != null) {
@@ -235,15 +225,14 @@ class RosterPlugin extends PluginClass {
     this.connection.sendIQ(iq.tree(), callback, callback);
   }
 
-  /** Function: update
-   * Update roster item
-   *
-   * Parameters:
-   *   (String) jid - item jid
-   *   (String) name - name
-   *   (Array) groups
-   *   (Function) callback
-   */
+  /// Function: update
+  /// Update roster item
+  ///
+  /// Parameters:
+  ///   (String) jid - item jid
+  ///   (String) name - name
+  ///   (Array) groups
+  ///   (Function) callback
   update(String jid, String name, [List groups, Function callback]) {
     RosterItem item = this.findItem(jid);
     if (item == null) {
@@ -258,13 +247,12 @@ class RosterPlugin extends PluginClass {
     return this.connection.sendIQ(iq.tree(), callback, callback);
   }
 
-  /** Function: remove
-   * Remove roster item
-   *
-   * Parameters:
-   *   (String) jid - item jid
-   *   (Function) callback
-   */
+  /// Function: remove
+  /// Remove roster item
+  ///
+  /// Parameters:
+  ///   (String) jid - item jid
+  ///   (Function) callback
   remove(String jid, [Function callback]) {
     RosterItem item = this.findItem(jid);
     if (item == null) {
@@ -275,9 +263,8 @@ class RosterPlugin extends PluginClass {
     this.connection.sendIQ(iq.tree(), callback, callback);
   }
 
-  /** PrivateFunction: _onReceiveRosterSuccess
-   *
-   */
+  /// PrivateFunction: _onReceiveRosterSuccess
+  ///
   _onReceiveRosterSuccess(Function userCallback, xml.XmlElement stanza) {
     this._updateItems(stanza);
     this._call_backs(this.items);
@@ -286,16 +273,14 @@ class RosterPlugin extends PluginClass {
     }
   }
 
-  /** PrivateFunction: _onReceiveRosterError
-   *
-   */
+  /// PrivateFunction: _onReceiveRosterError
+  ///
   _onReceiveRosterError(Function userCallback, xml.XmlElement stanza) {
     userCallback(this.items);
   }
 
-  /** PrivateFunction: _onReceivePresence
-   * Handle presence
-   */
+  /// PrivateFunction: _onReceivePresence
+  /// Handle presence
   _onReceivePresence(xml.XmlElement presence) {
     // TODO: from is optional
     String jid = presence.getAttribute('from');
@@ -327,21 +312,19 @@ class RosterPlugin extends PluginClass {
     return true;
   }
 
-  /** PrivateFunction: _call_backs_request
-   * call all the callbacks waiting for 'friend request' presences
-   */
+  /// PrivateFunction: _call_backs_request
+  /// call all the callbacks waiting for 'friend request' presences
   _call_backs_request(String from) {
     for (int i = 0; i < this._callbacksRequest.length; i++) {
       this._callbacksRequest[i](from);
     }
   }
 
-  /** PrivateFunction: _call_backs
-   * first parameter is the full roster
-   * second is optional, newly added or updated item
-   * third is otional, in case of update, send the previous state of the
-   *  update item
-   */
+  /// PrivateFunction: _call_backs
+  /// first parameter is the full roster
+  /// second is optional, newly added or updated item
+  /// third is otional, in case of update, send the previous state of the
+  ///  update item
   _call_backs(List<RosterItem> items, [item, previousItem]) {
     for (int i = 0; i < this._callbacks.length; i++) // [].forEach my love ...
     {
@@ -349,9 +332,8 @@ class RosterPlugin extends PluginClass {
     }
   }
 
-  /** PrivateFunction: _onReceiveIQ
-   * Handle roster push.
-   */
+  /// PrivateFunction: _onReceiveIQ
+  /// Handle roster push.
   _onReceiveIQ(xml.XmlElement iq) {
     String id = iq.getAttribute('id');
     String from = iq.getAttribute('from');
@@ -363,9 +345,8 @@ class RosterPlugin extends PluginClass {
     return true;
   }
 
-  /** PrivateFunction: _updateItems
-   * Update items from iq
-   */
+  /// PrivateFunction: _updateItems
+  /// Update items from iq
   _updateItems(xml.XmlElement iq) {
     List<xml.XmlElement> queries = iq.findAllElements('query').toList();
     if (queries.length != 0) {
@@ -382,9 +363,8 @@ class RosterPlugin extends PluginClass {
     }
   }
 
-  /** PrivateFunction: _updateItem
-   * Update internal representation of roster item
-   */
+  /// PrivateFunction: _updateItem
+  /// Update internal representation of roster item
   _updateItem(xml.XmlElement itemTag) {
     if (itemTag == null) return;
     String jid = itemTag.getAttribute("jid");

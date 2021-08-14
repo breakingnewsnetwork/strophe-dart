@@ -67,7 +67,7 @@ class MD5 {
       06,
       10, 15, 21, 06, 10, 15, 21
     ];
-    List<int> digest = List<int>(4);
+    List<int> digest = List<int>.filled(4, 0);
     digest[0] = 0x67452301;
     digest[1] = 0xefcdab89;
     digest[2] = 0x98badcfe;

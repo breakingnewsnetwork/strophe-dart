@@ -1490,16 +1490,15 @@ class StropheConnection {
     return hand;
   }
 
-  /** Function: deleteHandler
-   *  Delete a stanza handler for a connection.
-   *
-   *  This function removes a stanza handler from the connection.  The
-   *  handRef parameter is *not* the function passed to addHandler(),
-   *  but is the reference returned from addHandler().
-   *
-   *  Parameters:
-   *    (Strophe.Handler) handRef - The handler reference.
-   */
+  /// Function: deleteHandler
+  ///  Delete a stanza handler for a connection.
+  ///
+  ///  This function removes a stanza handler from the connection.  The
+  ///  handRef parameter is *not* the function passed to addHandler(),
+  ///  but is the reference returned from addHandler().
+  ///
+  ///  Parameters:
+  ///    (Strophe.Handler) handRef - The handler reference.
   deleteHandler(StanzaHandler handRef) {
     // this must be done in the Idle loop so this we don't change
     // the handlers during iteration
@@ -1512,15 +1511,14 @@ class StropheConnection {
     }
   }
 
-  /** Function: registerSASLMechanisms
-   *
-   * Register the SASL mechanisms which will be supported by this instance of
-   * Strophe.Connection (i.e. which this XMPP client will support).
-   *
-   *  Parameters:
-   *    (Array) mechanisms - Array of objects with Strophe.SASLMechanism prototypes
-   *
-   */
+  /// Function: registerSASLMechanisms
+  ///
+  /// Register the SASL mechanisms which will be supported by this instance of
+  /// Strophe.Connection (i.e. which this XMPP client will support).
+  ///
+  ///  Parameters:
+  ///    (Array) mechanisms - Array of objects with Strophe.SASLMechanism prototypes
+  ///
   registerSASLMechanisms(mechanisms) {
     this.mechanisms = {};
     mechanisms = mechanisms ??
@@ -1536,34 +1534,32 @@ class StropheConnection {
     mechanisms.forEach(this.registerSASLMechanism);
   }
 
-  /** Function: registerSASLMechanism
-   *
-   * Register a single SASL mechanism, to be supported by this client.
-   *
-   *  Parameters:
-   *    (Object) mechanism - Object with a Strophe.SASLMechanism prototype
-   *
-   */
+  /// Function: registerSASLMechanism
+  ///
+  /// Register a single SASL mechanism, to be supported by this client.
+  ///
+  ///  Parameters:
+  ///    (Object) mechanism - Object with a Strophe.SASLMechanism prototype
+  ///
   registerSASLMechanism(StropheSASLMechanism mechanism) {
     this.mechanisms[mechanism.name] = mechanism;
   }
 
-  /** Function: disconnect
-   *  Start the graceful disconnection process.
-   *
-   *  This function starts the disconnection process.  This process starts
-   *  by sending unavailable presence and sending BOSH body of type
-   *  terminate.  A timeout handler makes sure this disconnection happens
-   *  even if the BOSH server does not respond.
-   *  If the Connection object isn't connected, at least tries to abort all pending requests
-   *  so the connection object won't generate successful requests (which were already opened).
-   *
-   *  The user supplied connection callback will be notified of the
-   *  progress as this process happens.
-   *
-   *  Parameters:
-   *    (String) reason - The reason the disconnect is occuring.
-   */
+  /// Function: disconnect
+  ///  Start the graceful disconnection process.
+  ///
+  ///  This function starts the disconnection process.  This process starts
+  ///  by sending unavailable presence and sending BOSH body of type
+  ///  terminate.  A timeout handler makes sure this disconnection happens
+  ///  even if the BOSH server does not respond.
+  ///  If the Connection object isn't connected, at least tries to abort all pending requests
+  ///  so the connection object won't generate successful requests (which were already opened).
+  ///
+  ///  The user supplied connection callback will be notified of the
+  ///  progress as this process happens.
+  ///
+  ///  Parameters:
+  ///    (String) reason - The reason the disconnect is occuring.
   disconnect([String reason = ""]) {
     this._changeConnectStatus(Strophe.Status['DISCONNECTING'], reason);
 
@@ -1584,16 +1580,15 @@ class StropheConnection {
     }
   }
 
-  /** PrivateFunction: _changeConnectStatus
-   *  _Private_ helper function this makes sure plugins and the user's
-   *  callback are notified of connection status changes.
-   *
-   *  Parameters:
-   *    (Integer) status - the new connection status, one of the values
-   *      in Strophe.Status
-   *    (String) condition - the error condition or null
-   *    (XMLElement) elem - The triggering stanza.
-   */
+  /// PrivateFunction: _changeConnectStatus
+  ///  _Private_ helper function this makes sure plugins and the user's
+  ///  callback are notified of connection status changes.
+  ///
+  ///  Parameters:
+  ///    (Integer) status - the new connection status, one of the values
+  ///      in Strophe.Status
+  ///    (String) condition - the error condition or null
+  ///    (XMLElement) elem - The triggering stanza.
   changeConnectStatus(int status, String condition, [xml.XmlNode elem]) {
     this._changeConnectStatus(status, condition, elem);
   }
@@ -1620,12 +1615,11 @@ class StropheConnection {
     }
   }
 
-  /** PrivateFunction: _doDisconnect
-   *  _Private_ function to disconnect.
-   *
-   *  This is the last piece of the disconnection logic.  This resets the
-   *  connection and alerts the user's connection callback.
-   */
+  /// PrivateFunction: _doDisconnect
+  ///  _Private_ function to disconnect.
+  ///
+  ///  This is the last piece of the disconnection logic.  This resets the
+  ///  connection and alerts the user's connection callback.
   doDisconnect([condition]) {
     return this._doDisconnect(condition);
   }
@@ -1659,18 +1653,17 @@ class StropheConnection {
     this.connected = false;
   }
 
-  /** PrivateFunction: _dataRecv
-   *  _Private_ handler to processes incoming data from the the connection.
-   *
-   *  Except for _connect_cb handling the initial connection request,
-   *  this function handles the incoming data for all requests.  This
-   *  function also fires stanza handlers this match each incoming
-   *  stanza.
-   *
-   *  Parameters:
-   *    (Strophe.Request) req - The request this has data ready.
-   *    (string) req - The stanza a raw string (optiona).
-   */
+  /// PrivateFunction: _dataRecv
+  ///  _Private_ handler to processes incoming data from the the connection.
+  ///
+  ///  Except for _connect_cb handling the initial connection request,
+  ///  this function handles the incoming data for all requests.  This
+  ///  function also fires stanza handlers this match each incoming
+  ///  stanza.
+  ///
+  ///  Parameters:
+  ///    (Strophe.Request) req - The request this has data ready.
+  ///    (string) req - The stanza a raw string (optiona).
   dataRecv(req, [String raw]) {
     this._dataRecv(req, raw);
   }
@@ -1774,18 +1767,16 @@ class StropheConnection {
     });
   }
 
-  /** Attribute: mechanisms
-   *  SASL Mechanisms available for Connection.
-   */
+  /// Attribute: mechanisms
+  ///  SASL Mechanisms available for Connection.
   Map<String, StropheSASLMechanism> mechanisms = {};
 
-  /** PrivateFunction: _no_auth_received
-   *
-   * Called on stream start/restart when no stream:features
-   * has been received or when no viable authentication mechanism is offered.
-   *
-   * Sends a blank poll request.
-   */
+  /// PrivateFunction: _no_auth_received
+  ///
+  /// Called on stream start/restart when no stream:features
+  /// has been received or when no viable authentication mechanism is offered.
+  ///
+  /// Sends a blank poll request.
   Function get noAuthReceived {
     return _noAuthReceived;
   }
@@ -1800,22 +1791,21 @@ class StropheConnection {
     this._doDisconnect();
   }
 
-  /** PrivateFunction: _connect_cb
-   *  _Private_ handler for initial connection request.
-   *
-   *  This handler is used to process the initial connection request
-   *  response from the BOSH server. It is used to set up authentication
-   *  handlers and start the authentication process.
-   *
-   *  SASL authentication will be attempted if available, otherwise
-   *  the code will fall back to legacy authentication.
-   *
-   *  Parameters:
-   *    (Strophe.Request) req - The current request.
-   *    (Function) _callback - low level (xmpp) connect callback function.
-   *      Useful for plugins with their own xmpp connect callback (when they
-   *      want to do something special).
-   */
+  /// PrivateFunction: _connect_cb
+  ///  _Private_ handler for initial connection request.
+  ///
+  ///  This handler is used to process the initial connection request
+  ///  response from the BOSH server. It is used to set up authentication
+  ///  handlers and start the authentication process.
+  ///
+  ///  SASL authentication will be attempted if available, otherwise
+  ///  the code will fall back to legacy authentication.
+  ///
+  ///  Parameters:
+  ///    (Strophe.Request) req - The current request.
+  ///    (Function) _callback - low level (xmpp) connect callback function.
+  ///      Useful for plugins with their own xmpp connect callback (when they
+  ///      want to do something special).
 
   set connectCb(ConnexionCallback param) {
     this._connectCb = param;
@@ -1830,15 +1820,14 @@ class StropheConnection {
 
 } */
 
-  /** Function: sortMechanismsByPriority
-   *
-   *  Sorts an array of objects with prototype SASLMechanism according to
-   *  their priorities.
-   *
-   *  Parameters:
-   *    (Array) mechanisms - Array of SASL mechanisms.
-   *
-   */
+  /// Function: sortMechanismsByPriority
+  ///
+  ///  Sorts an array of objects with prototype SASLMechanism according to
+  ///  their priorities.
+  ///
+  ///  Parameters:
+  ///    (Array) mechanisms - Array of SASL mechanisms.
+  ///
   List<StropheSASLMechanism> sortMechanismsByPriority(List<StropheSASLMechanism> mechanisms) {
     // Sorting mechanisms according to priority.
     int higher;
@@ -1859,19 +1848,18 @@ class StropheConnection {
     return mechanisms;
   }
 
-  /** PrivateFunction: _attemptSASLAuth
-   *
-   *  Iterate through an array of SASL mechanisms and attempt authentication
-   *  with the highest priority (enabled) mechanism.
-   *
-   *  Parameters:
-   *    (Array) mechanisms - Array of SASL mechanisms.
-   *
-   *  Returns:
-   *    (Boolean) mechanism_found - true or false, depending on whether a
-   *          valid SASL mechanism was found with which authentication could be
-   *          started.
-   */
+  /// PrivateFunction: _attemptSASLAuth
+  ///
+  ///  Iterate through an array of SASL mechanisms and attempt authentication
+  ///  with the highest priority (enabled) mechanism.
+  ///
+  ///  Parameters:
+  ///    (Array) mechanisms - Array of SASL mechanisms.
+  ///
+  ///  Returns:
+  ///    (Boolean) mechanism_found - true or false, depending on whether a
+  ///          valid SASL mechanism was found with which authentication could be
+  ///          started.
   Future<bool> _attemptSASLAuth(List<StropheSASLMechanism> mechanisms) async {
     mechanisms = this.sortMechanismsByPriority(mechanisms ?? []);
 
@@ -1899,11 +1887,10 @@ class StropheConnection {
     return mechanismFound;
   }
 
-  /** PrivateFunction: _attemptLegacyAuth
-   *
-   *  Attempt legacy (i.e. non-SASL) authentication.
-   *
-   */
+  /// PrivateFunction: _attemptLegacyAuth
+  ///
+  ///  Attempt legacy (i.e. non-SASL) authentication.
+  ///
   _attemptLegacyAuth() {
     if (Strophe.getNodeFromJid(this.jid) == null) {
       // we don't have a node, which is required for non-anonymous
@@ -1922,19 +1909,18 @@ class StropheConnection {
     }
   }
 
-  /** Function: authenticate
-   * Set up authentication
-   *
-   *  Continues the initial connection request by setting up authentication
-   *  handlers and starting the authentication process.
-   *
-   *  SASL authentication will be attempted if available, otherwise
-   *  the code will fall back to legacy authentication.
-   *
-   *  Parameters:
-   *    (Array) matched - Array of SASL mechanisms supported.
-   *
-   */
+  /// Function: authenticate
+  /// Set up authentication
+  ///
+  ///  Continues the initial connection request by setting up authentication
+  ///  handlers and starting the authentication process.
+  ///
+  ///  SASL authentication will be attempted if available, otherwise
+  ///  the code will fall back to legacy authentication.
+  ///
+  ///  Parameters:
+  ///    (Array) matched - Array of SASL mechanisms supported.
+  ///
 
   set authenticate(AuthenticateCallback callback) {
     this._authenticate = callback;
@@ -1945,10 +1931,9 @@ class StropheConnection {
     return this._authenticate;
   }
 
-  /** PrivateFunction: _saslChallengeCb
-   *  _Private_ handler for the SASL challenge
-   *authenticate
-   */
+  /// PrivateFunction: _saslChallengeCb
+  ///  _Private_ handler for the SASL challenge
+  ///authenticate
   Future<bool> _saslChallengeCb(elem) async {
     String challenge = new String.fromCharCodes(base64.decode(Strophe.getText(elem)));
     String response = await this._saslMechanism.onChallenge(this, challenge);
@@ -1974,7 +1959,6 @@ class StropheConnection {
    *  Returns:
    *    false to remove the handler.
    */
-  /* jshint unused:false */
   _auth1Cb(elem) {
     // build plaintext auth iq
     StanzaBuilder iq = Strophe.$iq({'type': "set", 'id': "_auth_2"})
@@ -2000,15 +1984,14 @@ class StropheConnection {
 
   /* jshint unused:true */
 
-  /** PrivateFunction: _saslSuccessCb
-   *  _Private_ handler for succesful SASL authentication.
-   *
-   *  Parameters:
-   *    (XMLElement) elem - The matching stanza.
-   *
-   *  Returns:
-   *    false to remove the handler.
-   */
+  /// PrivateFunction: _saslSuccessCb
+  ///  _Private_ handler for succesful SASL authentication.
+  ///
+  ///  Parameters:
+  ///    (XMLElement) elem - The matching stanza.
+  ///
+  ///  Returns:
+  ///    false to remove the handler.
   bool _saslSuccessCb(elem) {
     String saslData = this._saslData["server-signature"];
     if (saslData != null && saslData.isNotEmpty) {
@@ -2068,15 +2051,14 @@ class StropheConnection {
     return false;
   }
 
-  /** PrivateFunction: _saslAuth1Cb
-   *  _Private_ handler to start stream binding.
-   *
-   *  Parameters:
-   *    (XMLElement) elem - The matching stanza.
-   *
-   *  Returns:
-   *    false to remove the handler.
-   */
+  /// PrivateFunction: _saslAuth1Cb
+  ///  _Private_ handler to start stream binding.
+  ///
+  ///  Parameters:
+  ///    (XMLElement) elem - The matching stanza.
+  ///
+  ///  Returns:
+  ///    false to remove the handler.
   bool _saslAuth1Cb(element) {
     // save stream:features for future usage
     xml.XmlElement elem = element is xml.XmlDocument ? element.rootElement : (element as xml.XmlElement);
@@ -2108,15 +2090,14 @@ class StropheConnection {
     return false;
   }
 
-  /** PrivateFunction: _saslBindCb
-   *  _Private_ handler for binding result and session start.
-   *
-   *  Parameters:
-   *    (XMLElement) elem - The matching stanza.
-   *
-   *  Returns:
-   *    false to remove the handler.
-   */
+  /// PrivateFunction: _saslBindCb
+  ///  _Private_ handler for binding result and session start.
+  ///
+  ///  Parameters:
+  ///    (XMLElement) elem - The matching stanza.
+  ///
+  ///  Returns:
+  ///    false to remove the handler.
   bool _saslBindCb(xml.XmlElement elem) {
     if (elem.getAttribute("type") == "error") {
       Strophe.info("SASL binding failed.");
@@ -2153,18 +2134,17 @@ class StropheConnection {
     }
   }
 
-  /** PrivateFunction: _saslSessionCb
-   *  _Private_ handler to finish successful SASL connection.
-   *
-   *  This sets Connection.authenticated to true on success, which
-   *  starts the processing of user handlers.
-   *
-   *  Parameters:
-   *    (XMLElement) elem - The matching stanza.
-   *
-   *  Returns:
-   *    false to remove the handler.
-   */
+  /// PrivateFunction: _saslSessionCb
+  ///  _Private_ handler to finish successful SASL connection.
+  ///
+  ///  This sets Connection.authenticated to true on success, which
+  ///  starts the processing of user handlers.
+  ///
+  ///  Parameters:
+  ///    (XMLElement) elem - The matching stanza.
+  ///
+  ///  Returns:
+  ///    false to remove the handler.
   bool _saslSessionCb(xml.XmlElement elem) {
     if (elem.getAttribute("type") == "result") {
       this.authenticated = true;
@@ -2177,15 +2157,14 @@ class StropheConnection {
     return false;
   }
 
-  /** PrivateFunction: _saslFailureCb
-   *  _Private_ handler for SASL authentication failure.
-   *
-   *  Parameters:
-   *    (XMLElement) elem - The matching stanza.
-   *
-   *  Returns:
-   *    false to remove the handler.
-   */
+  /// PrivateFunction: _saslFailureCb
+  ///  _Private_ handler for SASL authentication failure.
+  ///
+  ///  Parameters:
+  ///    (XMLElement) elem - The matching stanza.
+  ///
+  ///  Returns:
+  ///    false to remove the handler.
   /* jshint unused:false */
   _saslFailureCb([xml.XmlElement elem]) {
     // delete unneeded handlers
@@ -2205,18 +2184,17 @@ class StropheConnection {
 
   /* jshint unused:true */
 
-  /** PrivateFunction: _auth2Cb
-   *  _Private_ handler to finish legacy authentication.
-   *
-   *  This handler is called when the result from the jabber:iq:auth
-   *  <iq/> stanza is returned.
-   *
-   *  Parameters:
-   *    (XMLElement) elem - The stanza this triggered the callback.
-   *
-   *  Returns:
-   *    false to remove the handler.
-   */
+  /// PrivateFunction: _auth2Cb
+  ///  _Private_ handler to finish legacy authentication.
+  ///
+  ///  This handler is called when the result from the jabber:iq:auth
+  ///  <iq/> stanza is returned.
+  ///
+  ///  Parameters:
+  ///    (XMLElement) elem - The stanza this triggered the callback.
+  ///
+  ///  Returns:
+  ///    false to remove the handler.
   bool _auth2Cb(xml.XmlElement elem) {
     if (elem.getAttribute("type") == "result") {
       this.authenticated = true;
@@ -2228,17 +2206,16 @@ class StropheConnection {
     return false;
   }
 
-  /** PrivateFunction: _addSysTimedHandler
-   *  _Private_ function to add a system level timed handler.
-   *
-   *  This function is used to add a Strophe.TimedHandler for the
-   *  library code.  System timed handlers are allowed to run before
-   *  authentication is complete.
-   *
-   *  Parameters:
-   *    (Integer) period - The period of the handler.
-   *    (Function) handler - The callback function.
-   */
+  /// PrivateFunction: _addSysTimedHandler
+  ///  _Private_ function to add a system level timed handler.
+  ///
+  ///  This function is used to add a Strophe.TimedHandler for the
+  ///  library code.  System timed handlers are allowed to run before
+  ///  authentication is complete.
+  ///
+  ///  Parameters:
+  ///    (Integer) period - The period of the handler.
+  ///    (Function) handler - The callback function.
   StanzaTimedHandler _addSysTimedHandler(int period, Function handler) {
     StanzaTimedHandler thand = Strophe.TimedHandler(period, handler);
     thand.user = false;
@@ -2246,20 +2223,19 @@ class StropheConnection {
     return thand;
   }
 
-  /** PrivateFunction: _addSysHandler
-   *  _Private_ function to add a system level stanza handler.
-   *
-   *  This function is used to add a Strophe.Handler for the
-   *  library code.  System stanza handlers are allowed to run before
-   *  authentication is complete.
-   *
-   *  Parameters:
-   *    (Function) handler - The callback function.
-   *    (String) ns - The namespace to match.
-   *    (String) name - The stanza name to match.
-   *    (String) type - The stanza type attribute to match.
-   *    (String) id - The stanza id attribute to match.
-   */
+  /// PrivateFunction: _addSysHandler
+  ///  _Private_ function to add a system level stanza handler.
+  ///
+  ///  This function is used to add a Strophe.Handler for the
+  ///  library code.  System stanza handlers are allowed to run before
+  ///  authentication is complete.
+  ///
+  ///  Parameters:
+  ///    (Function) handler - The callback function.
+  ///    (String) ns - The namespace to match.
+  ///    (String) name - The stanza name to match.
+  ///    (String) type - The stanza type attribute to match.
+  ///    (String) id - The stanza id attribute to match.
   StanzaHandler addSysHandler(Function handler, String ns, String name, String type, String id) {
     return _addSysHandler(handler, ns, name, type, id);
   }
@@ -2271,15 +2247,14 @@ class StropheConnection {
     return hand;
   }
 
-  /** PrivateFunction: _onDisconnectTimeout
-   *  _Private_ timeout handler for handling non-graceful disconnection.
-   *
-   *  If the graceful disconnect process does not complete within the
-   *  time allotted, this handler finishes the disconnect anyway.
-   *
-   *  Returns:
-   *    false to remove the handler.
-   */
+  /// PrivateFunction: _onDisconnectTimeout
+  ///  _Private_ timeout handler for handling non-graceful disconnection.
+  ///
+  ///  If the graceful disconnect process does not complete within the
+  ///  time allotted, this handler finishes the disconnect anyway.
+  ///
+  ///  Returns:
+  ///    false to remove the handler.
   bool onDisconnectTimeout() {
     return _onDisconnectTimeout();
   }
@@ -2292,12 +2267,11 @@ class StropheConnection {
     return false;
   }
 
-  /** PrivateFunction: _onIdle
-   *  _Private_ handler to process events during idle cycle.
-   *
-   *  This handler is called every 100ms to fire timed handlers this
-   *  are ready and keep poll requests going.
-   */
+  /// PrivateFunction: _onIdle
+  ///  _Private_ handler to process events during idle cycle.
+  ///
+  ///  This handler is called every 100ms to fire timed handlers this
+  ///  are ready and keep poll requests going.
   onIdle() {
     this._onIdle();
   }
@@ -2374,18 +2348,16 @@ class StropheConnection {
  *  See: Strophe.Connection.addSupportedSASLMechanisms
  */
 
-/**
- * PrivateConstructor: Strophe.SASLMechanism
- * SASL auth mechanism abstraction.
- *
- *  Parameters:
- *    (String) name - SASL Mechanism name.
- *    (Boolean) isClientFirst - If client should send response first without challenge.
- *    (Number) priority - Priority.
- *
- *  Returns:
- *    A new Strophe.SASLMechanism object.
- */
+/// PrivateConstructor: Strophe.SASLMechanism
+/// SASL auth mechanism abstraction.
+///
+///  Parameters:
+///    (String) name - SASL Mechanism name.
+///    (Boolean) isClientFirst - If client should send response first without challenge.
+///    (Number) priority - Priority.
+///
+///  Returns:
+///    A new Strophe.SASLMechanism object.
 class StropheSASLMechanism {
   String name;
 
@@ -2430,27 +2402,25 @@ class StropheSASLMechanism {
 
   /* jshint unused:true */
 
-  /** PrivateFunction: onStart
-   *  Called before starting mechanism on some connection.
-   *
-   *  Parameters:
-   *    (Strophe.Connection) connection - Target Connection.
-   */
+  /// PrivateFunction: onStart
+  ///  Called before starting mechanism on some connection.
+  ///
+  ///  Parameters:
+  ///    (Strophe.Connection) connection - Target Connection.
   void onStart(StropheConnection connection) {
     this._connection = connection;
   }
 
-  /** PrivateFunction: onChallenge
-   *  Called by protocol implementation on incoming challenge. If client is
-   *  first (isClientFirst === true) challenge will be null on the first call.
-   *
-   *  Parameters:
-   *    (Strophe.Connection) connection - Target Connection.
-   *    (String) challenge - current challenge to handle.
-   *
-   *  Returns:
-   *    (String) Mechanism response.
-   */
+  /// PrivateFunction: onChallenge
+  ///  Called by protocol implementation on incoming challenge. If client is
+  ///  first (isClientFirst === true) challenge will be null on the first call.
+  ///
+  ///  Parameters:
+  ///    (Strophe.Connection) connection - Target Connection.
+  ///    (String) challenge - current challenge to handle.
+  ///
+  ///  Returns:
+  ///    (String) Mechanism response.
   /* jshint unused:false */
   Future<String> onChallenge(StropheConnection connection, [String challenge, String testCnonce]) {
     throw {'message': "You should implement challenge handling!"};
@@ -2458,16 +2428,14 @@ class StropheSASLMechanism {
 
   /* jshint unused:true */
 
-  /** PrivateFunction: onFailure
-   *  Protocol informs mechanism implementation about SASL failure.
-   */
+  /// PrivateFunction: onFailure
+  ///  Protocol informs mechanism implementation about SASL failure.
   void onFailure() {
     this._connection = null;
   }
 
-  /** PrivateFunction: onSuccess
-   *  Protocol informs mechanism implementation about SASL success.
-   */
+  /// PrivateFunction: onSuccess
+  ///  Protocol informs mechanism implementation about SASL success.
   void onSuccess() {
     this._connection = null;
   }
@@ -2486,9 +2454,8 @@ class StropheSASLMechanism {
 
 // Building SASL callbacks
 
-/** PrivateConstructor: SASLAnonymous
- *  SASL ANONYMOUS authentication.
- */
+/// PrivateConstructor: SASLAnonymous
+///  SASL ANONYMOUS authentication.
 class StropheSASLAnonymous extends StropheSASLMechanism {
   StropheSASLAnonymous() : super("ANONYMOUS", false, 20);
 
@@ -2496,9 +2463,8 @@ class StropheSASLAnonymous extends StropheSASLMechanism {
     return connection.authcid == null;
   }
 }
-/** PrivateConstructor: SASLPlain
- *  SASL PLAIN authentication.
- */
+/// PrivateConstructor: SASLPlain
+///  SASL PLAIN authentication.
 
 class StropheSASLPlain extends StropheSASLMechanism {
   //StropheSASLPlain() : super("PLAIN", true, 50);
@@ -2518,9 +2484,8 @@ class StropheSASLPlain extends StropheSASLMechanism {
   }
 }
 
-/** PrivateConstructor: SASLSHA1
- *  SASL SCRAM SHA 1 authentication.
- */
+/// PrivateConstructor: SASLSHA1
+///  SASL SCRAM SHA 1 authentication.
 class StropheSASLSHA1 extends StropheSASLMechanism {
   static bool first = false;
 
@@ -2608,9 +2573,8 @@ class StropheSASLSHA1 extends StropheSASLMechanism {
   }
 }
 
-/** PrivateConstructor: SASLMD5
- *  SASL DIGEST MD5 authentication.
- */
+/// PrivateConstructor: SASLMD5
+///  SASL DIGEST MD5 authentication.
 class StropheSASLMD5 extends StropheSASLMechanism {
   static bool first = false;
 
@@ -2680,9 +2644,8 @@ class StropheSASLMD5 extends StropheSASLMechanism {
   }
 }
 
-/** PrivateConstructor: SASLOAuthBearer
- *  SASL OAuth Bearer authentication.
- */
+/// PrivateConstructor: SASLOAuthBearer
+///  SASL OAuth Bearer authentication.
 class StropheSASLOAuthBearer extends StropheSASLMechanism {
   StropheSASLOAuthBearer() : super("OAUTHBEARER", true, 40);
 
@@ -2706,14 +2669,13 @@ class StropheSASLOAuthBearer extends StropheSASLMechanism {
   }
 }
 
-/** PrivateConstructor: SASLExternal
- *  SASL EXTERNAL authentication.
- *
- *  The EXTERNAL mechanism allows a client to request the server to use
- *  credentials established by means external to the mechanism to
- *  authenticate the client. The external means may be, for instance,
- *  TLS services.
- */
+/// PrivateConstructor: SASLExternal
+///  SASL EXTERNAL authentication.
+///
+///  The EXTERNAL mechanism allows a client to request the server to use
+///  credentials established by means external to the mechanism to
+///  authenticate the client. The external means may be, for instance,
+///  TLS services.
 class StropheSASLExternal extends StropheSASLMechanism {
   StropheSASLExternal() : super("EXTERNAL", true, 10);
 
@@ -2729,9 +2691,8 @@ class StropheSASLExternal extends StropheSASLMechanism {
   }
 }
 
-/** PrivateConstructor: SASLXOAuth2
- *  SASL X-OAuth2 authentication.
- */
+/// PrivateConstructor: SASLXOAuth2
+///  SASL X-OAuth2 authentication.
 class StropheSASLXOAuth2 extends StropheSASLMechanism {
   StropheSASLXOAuth2() : super("X-OAUTH2", true, 30);
 
