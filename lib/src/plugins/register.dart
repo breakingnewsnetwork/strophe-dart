@@ -20,9 +20,9 @@ This library is free software; you can redistribute it and/or modify it
 */
 
 class RegisterPlugin extends PluginClass {
-  String domain;
-  String instructions;
-  Map<String, dynamic> fields;
+  String? domain;
+  String? instructions;
+  late Map<String, dynamic> fields;
   bool registered = false;
   bool _registering = false;
   bool processed_features = false;
@@ -35,7 +35,7 @@ class RegisterPlugin extends PluginClass {
     // compute free emun index number
     int i = 0;
     Strophe.Status.forEach((String key, int value) {
-      i = max(i, Strophe.Status[key]);
+      i = max(i, Strophe.Status[key]!);
     });
 
     /* extend name space
@@ -49,24 +49,24 @@ class RegisterPlugin extends PluginClass {
     Strophe.Status['CONFLICT'] = i + 4;
     Strophe.Status['NOTACCEPTABLE'] = i + 5;
     if (conn.disco != null) {
-      if (conn.disco.addFeature is Function)
-        conn.disco.addFeature(Strophe.NS['REGISTER']);
+      if (conn.disco!.addFeature is Function)
+        conn.disco!.addFeature(Strophe.NS['REGISTER']);
       //if (conn.disco.addNode is Function)
       //conn.disco.addNode(Strophe.NS['REGISTER'], {'items': []});
     }
 
     // hooking strophe's connection.reset
-    Function reset = conn.reset;
+    Function? reset = conn.reset;
     conn.reset = () {
-      reset();
+      reset!();
       this.instructions = "";
       this.fields = {};
       this.registered = false;
     };
 
     // hooking strophe's _connect_cb
-    Function connect_cb = conn.connectCb;
-    conn.connectCb = (req, Function _callback, String raw) {
+    Function? connect_cb = conn.connectCb;
+    conn.connectCb = (req, Function? _callback, String raw) {
       if (!this._registering) {
         if (this.processed_features) {
           // exchange Input hooks to not print the stream:features twice
@@ -74,12 +74,12 @@ class RegisterPlugin extends PluginClass {
           //conn.xmlInput = Strophe.Connection.xmlInput;
           //var rawInput = conn.rawInput;
           //conn.rawInput = Strophe.Connection.prototype.rawInput;
-          connect_cb(req, _callback, raw);
+          connect_cb!(req, _callback, raw);
           //conn.xmlInput = xmlInput;
           //conn.rawInput = rawInput;
           this.processed_features = false;
         } else {
-          connect_cb(req, _callback, raw);
+          connect_cb!(req, _callback, raw);
         }
       } else {
         // Save this request in case we want to authenticate later
@@ -93,10 +93,10 @@ class RegisterPlugin extends PluginClass {
     };
 
     // hooking strophe`s authenticate
-    Function auth_old = conn.authenticate;
-    conn.authenticate = (List<StropheSASLMechanism> matched) {
+    Function? auth_old = conn.authenticate;
+    conn.authenticate = (List<StropheSASLMechanism?> matched) {
       if (matched == null) {
-        var conn = this.connection;
+        var conn = this.connection!;
 
         if (this.fields['username'] == null ||
             this.fields['username'].isEmpty ||
@@ -111,14 +111,14 @@ class RegisterPlugin extends PluginClass {
 
         conn.jid = jid;
         conn.authzid = Strophe.getBareJidFromJid(conn.jid);
-        conn.authcid = Strophe.getNodeFromJid(conn.jid);
+        conn.authcid = Strophe.getNodeFromJid(conn.jid!);
         conn.pass = this.fields['password'];
         var req = this._connect_cb_data['req'];
-        var callback = conn.connectCallback;
+        void Function(int, dynamic, dynamic) callback = conn.connectCallback!;
         var raw = this._connect_cb_data['raw'];
-        conn.connectCb(req, callback, raw);
+        conn.connectCb!(req, callback, raw);
       } else {
-        auth_old(matched);
+        auth_old!(matched);
       }
     };
   }
@@ -151,8 +151,8 @@ class RegisterPlugin extends PluginClass {
      *      should almost always be set to 1 (the default).
      */
   connect(String domain, ConnectCallBack callback,
-      [int wait, int hold, String route]) {
-    StropheConnection conn = this.connection;
+      [int? wait, int? hold, String? route]) {
+    StropheConnection conn = this.connection!;
     this.domain = Strophe.getDomainFromJid(domain);
     this.instructions = "";
     this.fields = {};
@@ -172,19 +172,19 @@ class RegisterPlugin extends PluginClass {
      *  Parameters:
      *    (Strophe.Request) req - The current request.
      */
-  _register_cb(req, Function _callback, String raw) {
-    StropheConnection conn = this.connection;
+  _register_cb(req, Function? _callback, String raw) {
+    StropheConnection conn = this.connection!;
     Strophe.info("_register_cb was called");
     conn.connected = true;
 
-    XmlElement bodyWrap = conn.proto.reqToData(req);
+    XmlElement? bodyWrap = conn.proto!.reqToData(req);
     if (bodyWrap == null) {
       return false;
     }
     //if (conn.xmlInput !== Strophe.Connection.prototype.xmlInput) {
-    if (bodyWrap.name.qualified == conn.proto.strip &&
+    if (bodyWrap.name.qualified == conn.proto!.strip &&
         bodyWrap.children.length > 0) {
-      conn.xmlInput(bodyWrap.firstChild);
+      conn.xmlInput(bodyWrap.firstChild as XmlElement?);
     } else {
       conn.xmlInput(bodyWrap);
     }
@@ -197,7 +197,7 @@ class RegisterPlugin extends PluginClass {
     }
     //}
 
-    var conncheck = conn.proto.connectCb(bodyWrap);
+    var conncheck = conn.proto!.connectCb(bodyWrap);
     if (conncheck == Strophe.Status['CONNFAIL']) {
       return false;
     }
@@ -235,7 +235,7 @@ class RegisterPlugin extends PluginClass {
   _get_register_cb(dynamic elem) {
     XmlElement field;
     List<XmlElement> queries;
-    StropheConnection conn = this.connection;
+    StropheConnection? conn = this.connection;
     XmlElement stanza;
     if (elem is XmlDocument)
       stanza = elem.rootElement;
@@ -246,26 +246,26 @@ class RegisterPlugin extends PluginClass {
     queries = stanza.findAllElements("query").toList();
 
     if (queries.length != 1) {
-      conn.changeConnectStatus(Strophe.Status['REGIFAIL'], "unknown");
+      conn!.changeConnectStatus(Strophe.Status['REGIFAIL'], "unknown");
       return false;
     }
     XmlElement query = queries.first;
     // get required fields
     for (int i = 0; i < query.children.length; i++) {
-      field = query.children[i];
+      field = query.children[i] as XmlElement;
       if (field.name.qualified.toLowerCase() == 'instructions') {
         // this is a special element
         // it provides info about given data fields in a textual way.
-        conn.register.instructions = Strophe.getText(field);
+        conn!.register!.instructions = Strophe.getText(field);
         continue;
       } else if (field.name.qualified.toLowerCase() == 'x') {
         // ignore x for now
         continue;
       }
-      conn.register.fields[field.name.qualified.toLowerCase()] =
+      conn!.register!.fields[field.name.qualified.toLowerCase()] =
           Strophe.getText(field);
     }
-    conn.changeConnectStatus(Strophe.Status['REGISTER'], null);
+    conn!.changeConnectStatus(Strophe.Status['REGISTER'], null);
     return false;
   }
 
@@ -280,7 +280,7 @@ class RegisterPlugin extends PluginClass {
   submit() {
     String name;
     List<String> fields;
-    StropheConnection conn = this.connection;
+    StropheConnection conn = this.connection!;
     StanzaBuilder query = Strophe
         .$iq({'type': "set"}).c("query", {'xmlns': Strophe.NS['REGISTER']});
     // set required fields
@@ -307,14 +307,14 @@ class RegisterPlugin extends PluginClass {
     XmlElement field;
     List<XmlElement> errors;
     List<XmlElement> queries;
-    StropheConnection conn = this.connection;
+    StropheConnection? conn = this.connection;
 
     queries = stanza.findAllElements("query").toList();
     if (queries.length > 0) {
       XmlElement query = queries[0];
       // update fields
       for (int i = 0; i < query.children.length; i++) {
-        field = query.children[i];
+        field = query.children[i] as XmlElement;
         if (field.name.qualified.toLowerCase() == 'instructions') {
           // this is a special element
           // it provides info about given data fields in a textual way
@@ -329,7 +329,7 @@ class RegisterPlugin extends PluginClass {
     if (stanza.getAttribute("type") == "error") {
       errors = stanza.findAllElements("error").toList();
       if (errors.length != 1) {
-        conn.changeConnectStatus(Strophe.Status['REGIFAIL'], "unknown");
+        conn!.changeConnectStatus(Strophe.Status['REGIFAIL'], "unknown");
         return false;
       }
 
@@ -339,19 +339,19 @@ class RegisterPlugin extends PluginClass {
       XmlElement firstChild = errors[0].firstChild as XmlElement;
       String error = firstChild.name.qualified.toLowerCase();
       if (error == 'conflict') {
-        conn.changeConnectStatus(Strophe.Status['CONFLICT'], error);
+        conn!.changeConnectStatus(Strophe.Status['CONFLICT'], error);
       } else if (error == 'not-acceptable') {
-        conn.changeConnectStatus(Strophe.Status['NOTACCEPTABLE'], error);
+        conn!.changeConnectStatus(Strophe.Status['NOTACCEPTABLE'], error);
       } else {
         String text =
             Strophe.getText(errors[0].findElements('text').toList()[0]) +
                 '/$error';
-        conn.changeConnectStatus(Strophe.Status['REGIFAIL'], text ?? error);
+        conn!.changeConnectStatus(Strophe.Status['REGIFAIL'], text ?? error);
       }
     } else {
       Strophe.info("Registration successful.");
 
-      conn.changeConnectStatus(Strophe.Status['REGISTERED'], null);
+      conn!.changeConnectStatus(Strophe.Status['REGISTERED'], null);
     }
 
     return false;

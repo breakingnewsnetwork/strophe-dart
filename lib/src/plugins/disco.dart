@@ -5,7 +5,7 @@ import 'package:xml/xml.dart';
 
 class DiscoPlugin extends PluginClass {
   List<Map<String, String>> _identities = [];
-  List<String> _features = [];
+  List<String?> _features = [];
   List<Map<String, dynamic>> _items = [];
 
   /// Function: init
@@ -17,7 +17,7 @@ class DiscoPlugin extends PluginClass {
     return _identities;
   }
 
-  List<String> get features {
+  List<String?> get features {
     return _features;
   }
 
@@ -62,7 +62,7 @@ class DiscoPlugin extends PluginClass {
   ///
   /// Returns:
   /// boolean
-  bool addFeature(String varName) {
+  bool addFeature(String? varName) {
     for (int i = 0; i < this._features.length; i++) {
       if (this._features[i] == varName) return false;
     }
@@ -97,7 +97,7 @@ class DiscoPlugin extends PluginClass {
   ///
   /// Returns:
   /// boolean
-  addItem(String jid, String name, String node, [Function callback]) {
+  addItem(String jid, String name, String node, [Function? callback]) {
     if (node != null && node.isNotEmpty && callback == null) return false;
     this._items.add({'jid': jid, 'name': name, 'node': node, 'call_back': callback});
     return true;
@@ -110,12 +110,12 @@ class DiscoPlugin extends PluginClass {
   /// (Function) call_back
   /// (String) jid
   /// (String) node
-  info(String jid, [String node, Function success, Function error, int timeout]) {
-    Map<String, String> attrs = {'xmlns': Strophe.NS['DISCO_INFO']};
+  info(String jid, [String? node, Function? success, Function? error, int? timeout]) {
+    Map<String, String?> attrs = {'xmlns': Strophe.NS['DISCO_INFO']};
     if (node != null && node.isNotEmpty) attrs['node'] = node;
 
-    StanzaBuilder info = Strophe.$iq({'from': this.connection.jid, 'to': jid, 'type': 'get'}).c('query', attrs);
-    this.connection.sendIQ(info.tree(), success, error, timeout);
+    StanzaBuilder info = Strophe.$iq({'from': this.connection!.jid, 'to': jid, 'type': 'get'}).c('query', attrs);
+    this.connection!.sendIQ(info.tree(), success, error, timeout);
   }
 
   /// Function: items
@@ -125,18 +125,18 @@ class DiscoPlugin extends PluginClass {
   /// (Function) call_back
   /// (String) jid
   /// (String) node
-  items(String jid, [String node, Function success, Function error, int timeout]) {
-    Map<String, String> attrs = {'xmlns': Strophe.NS['DISCO_ITEMS']};
+  items(String jid, [String? node, Function? success, Function? error, int? timeout]) {
+    Map<String, String?> attrs = {'xmlns': Strophe.NS['DISCO_ITEMS']};
     if (node != null && node.isNotEmpty) attrs['node'] = node;
 
-    StanzaBuilder items = Strophe.$iq({'from': this.connection.jid, 'to': jid, 'type': 'get'}).c('query', attrs);
-    this.connection.sendIQ(items.tree(), success, error, timeout);
+    StanzaBuilder items = Strophe.$iq({'from': this.connection!.jid, 'to': jid, 'type': 'get'}).c('query', attrs);
+    this.connection!.sendIQ(items.tree(), success, error, timeout);
   }
 
   /// PrivateFunction: _buildIQResult
-  StanzaBuilder _buildIQResult(XmlElement stanza, Map<String, String> queryAttrs) {
-    String id = stanza.getAttribute('id');
-    String from = stanza.getAttribute('from');
+  StanzaBuilder _buildIQResult(XmlElement stanza, Map<String, String?> queryAttrs) {
+    String? id = stanza.getAttribute('id');
+    String? from = stanza.getAttribute('from');
     StanzaBuilder iqresult = Strophe.$iq({'type': 'result', id: id});
 
     if (from != null) {
@@ -149,8 +149,8 @@ class DiscoPlugin extends PluginClass {
   /// PrivateFunction: _onDiscoInfo
   /// Called when receive info request
   _onDiscoInfo(XmlElement stanza) {
-    String node = stanza.findAllElements('query').toList()[0].getAttribute('node');
-    Map<String, String> attrs = {'xmlns': Strophe.NS['DISCO_INFO']};
+    String? node = stanza.findAllElements('query').toList()[0].getAttribute('node');
+    Map<String, String?> attrs = {'xmlns': Strophe.NS['DISCO_INFO']};
     if (node != null && node.isNotEmpty) {
       attrs['node'] = node;
     }
@@ -164,16 +164,16 @@ class DiscoPlugin extends PluginClass {
     for (int i = 0; i < this._features.length; i++) {
       iqresult.c('feature', {'var': this._features[i]}).up();
     }
-    this.connection.send(iqresult.tree());
+    this.connection!.send(iqresult.tree());
     return true;
   }
 
   /// PrivateFunction: _onDiscoItems
   /// Called when receive items request
   Future<bool> _onDiscoItems(XmlElement stanza) async {
-    Map<String, String> queryAttrs = {'xmlns': Strophe.NS['DISCO_ITEMS']};
-    String node = stanza.findAllElements('query').toList()[0].getAttribute('node');
-    List items;
+    Map<String, String?> queryAttrs = {'xmlns': Strophe.NS['DISCO_ITEMS']};
+    String? node = stanza.findAllElements('query').toList()[0].getAttribute('node');
+    List? items;
     if (node != null && node.isNotEmpty) {
       queryAttrs['node'] = node;
       items = [];
@@ -187,13 +187,13 @@ class DiscoPlugin extends PluginClass {
       items = this._items;
     }
     StanzaBuilder iqresult = this._buildIQResult(stanza, queryAttrs);
-    for (int i = 0; i < items.length; i++) {
+    for (int i = 0; i < items!.length; i++) {
       Map<String, dynamic> attrs = {'jid': items[i].jid};
       if (items[i]['name'] != null) attrs['name'] = items[i].name;
       if (items[i].node) attrs['node'] = items[i].node;
       iqresult.c('item', attrs).up();
     }
-    this.connection.send(iqresult.tree());
+    this.connection!.send(iqresult.tree());
     return true;
   }
 }

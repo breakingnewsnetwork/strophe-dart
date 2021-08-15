@@ -26,19 +26,19 @@ class PrivateStorage extends PluginClass {
   /// (XML) data   - the data you want to save
   /// (Function) success - Callback function on success
   /// (Function) error - Callback function on error
-  set(String tag, String ns, data, [Function success, Function error]) {
-    String id = this.connection.getUniqueId('saveXML');
+  set(String tag, String ns, data, [Function? success, Function? error]) {
+    String id = this.connection!.getUniqueId('saveXML');
     ns = ns ?? 'namespace';
     tag = tag ?? 'tag';
     StanzaBuilder iq = Strophe.$iq({'type': 'set', 'id': id}).c('query', {'xmlns': Strophe.NS['PRIVATE']}).c(tag, {'xmlns': ns});
 
-    xml.XmlNode d = this._transformData(data);
+    xml.XmlNode? d = this._transformData(data);
 
     if (d != null) {
       iq.cnode(d);
     }
 
-    this.connection.sendIQ(iq.tree(), success, error);
+    this.connection!.sendIQ(iq.tree(), success, error);
   }
 
   /// Function: get
@@ -48,13 +48,13 @@ class PrivateStorage extends PluginClass {
   /// (String) ns  - the namespace
   /// (Function) success - Callback function on success
   /// (Function) error - Callback function on error
-  get(String tag, String ns, Function success, [Function error]) {
-    String id = this.connection.getUniqueId('loadXML');
+  get(String tag, String ns, Function success, [Function? error]) {
+    String id = this.connection!.getUniqueId('loadXML');
     ns = ns ?? 'namespace';
     tag = tag ?? 'tag';
     StanzaBuilder iq = Strophe.$iq({'type': 'get', 'id': id}).c('query', {'xmlns': Strophe.NS['PRIVATE']}).c(tag, {'xmlns': ns});
 
-    this.connection.sendIQ(iq.tree(), (xml.XmlElement iq) {
+    this.connection!.sendIQ(iq.tree(), (xml.XmlElement iq) {
       xml.XmlNode data = iq;
 
       for (int i = 0; i < 3; i++) {
@@ -69,7 +69,7 @@ class PrivateStorage extends PluginClass {
   }
 
   /// PrivateFunction: _transformData
-  xml.XmlNode _transformData(c) {
+  xml.XmlNode? _transformData(c) {
     switch (c.runtimeType.toString()) {
       case "num":
       case "bool":

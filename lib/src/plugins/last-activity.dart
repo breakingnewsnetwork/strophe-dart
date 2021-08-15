@@ -8,10 +8,10 @@ class LastActivity extends PluginClass {
     Strophe.addNamespace('LAST_ACTIVITY', "jabber:iq:last");
   }
 
-  getLastActivity(String jid, Function success, [Function error]) {
-    String id = this.connection.getUniqueId('last1');
+  getLastActivity(String jid, Function success, [Function? error]) {
+    String id = this.connection!.getUniqueId('last1');
     this
-        .connection
+        .connection!
         .sendIQ(Strophe.$iq({'id': id, 'type': 'get', 'to': jid}).c('query', {'xmlns': Strophe.NS['LAST_ACTIVITY']}).tree(), success, error);
   }
 }

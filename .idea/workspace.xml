@@ -7,34 +7,34 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2c28d36b-b5ce-4bc8-ba12-d5abd04f1a5d" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/local.properties" beforeDir="false" afterPath="$PROJECT_DIR$/android/local.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/bosh.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/bosh.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/core.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/core.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/enums.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/enums.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/md5.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/md5.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/plugins/administration.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/plugins/administration.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/plugins/bookmark.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/plugins/bookmark.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/plugins/caps.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/plugins/caps.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/plugins/chat-notifications.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/plugins/chat-notifications.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/plugins/disco.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/plugins/disco.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/plugins/last-activity.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/plugins/last-activity.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/plugins/muc.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/plugins/muc.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/plugins/pep.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/plugins/pep.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/plugins/plugins.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/plugins/plugins.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/plugins/privacy.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/plugins/privacy.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/plugins/private-storage.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/plugins/private-storage.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/plugins/pubsub.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/plugins/pubsub.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/plugins/register.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/plugins/register.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/plugins/roster.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/plugins/roster.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/sha1.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/sha1.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/plugins/vcard-temp.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/plugins/vcard-temp.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/sessionstorage.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/sessionstorage.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/utils.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/utils.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/websocket.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/websocket.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
-  </component>
-  <component name="FindInProjectRecents">
-    <findStrings>
-      <find>new</find>
-    </findStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />

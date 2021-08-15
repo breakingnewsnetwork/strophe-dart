@@ -43,7 +43,7 @@ class SessionStorage {
     }
   }
 
-  static String getItem(String name) {
+  static String? getItem(String name) {
     return _session[name];
   }
 

@@ -6,20 +6,20 @@ import 'package:xml/xml.dart';
 class PrivacyPlugin extends PluginClass {
   /// Variable: lists
   /// Available privacy lists
-  Map<String, PrivacyList> lists = {};
+  Map<String?, PrivacyList?> lists = {};
 
   /// PrivateVariable: _default
   /// Default privacy list
-  String _default;
+  String? _default;
 
   /// PrivateVariable: _active
   /// Active privacy list
-  String _active;
+  String? _active;
 
   /// PrivateVariable: _isInitialized
   /// If lists were pulled from the server, and plugin is ready to work with those.
   bool _isInitialized = false;
-  Function _listChangeCallback;
+  Function? _listChangeCallback;
 
   init(StropheConnection conn) {
     this.connection = conn;
@@ -41,27 +41,27 @@ class PrivacyPlugin extends PluginClass {
   /// (Function) successCallback - Called upon successful deletion.
   /// (Function) failCallback - Called upon fail deletion.
   /// (Function) listChangeCallback - Called upon list change.
-  getListNames([Function successCallback, Function failCallback, Function listChangeCallback]) {
+  getListNames([Function? successCallback, Function? failCallback, Function? listChangeCallback]) {
     this._listChangeCallback = listChangeCallback;
     this
-        .connection
-        .sendIQ(Strophe.$iq({'type': "get", 'id': this.connection.getUniqueId("privacy")}).c("query", {'xmlns': Strophe.NS['PRIVACY']}).tree(),
+        .connection!
+        .sendIQ(Strophe.$iq({'type': "get", 'id': this.connection!.getUniqueId("privacy")}).c("query", {'xmlns': Strophe.NS['PRIVACY']}).tree(),
             (XmlNode element) {
       XmlElement stanza;
       if (element is XmlDocument)
         stanza = element.rootElement;
       else
         stanza = element as XmlElement;
-      Map<String, PrivacyList> _lists = this.lists;
+      Map<String?, PrivacyList?> _lists = this.lists;
       this.lists = {};
       List<XmlElement> listNames = stanza.findAllElements("list").toList();
       for (int i = 0; i < listNames.length; ++i) {
-        String listName = listNames[i].getAttribute("name");
+        String? listName = listNames[i].getAttribute("name");
         if (_lists[listName] != null)
           this.lists[listName] = _lists[listName];
         else
           this.lists[listName] = new PrivacyList(listName, false);
-        this.lists[listName]._isPulled = false;
+        this.lists[listName]!._isPulled = false;
       }
       List<XmlElement> activeNode = stanza.findAllElements("active").toList();
       if (activeNode.length == 1) this._active = activeNode[0].getAttribute("name");
@@ -85,7 +85,7 @@ class PrivacyPlugin extends PluginClass {
   ///
   /// Returns:
   /// New list, or existing list if it exists.
-  PrivacyList newList(String name) {
+  PrivacyList? newList(String? name) {
     if (this.lists[name] == null) this.lists[name] = new PrivacyList(name, true);
     return this.lists[name];
   }
@@ -102,7 +102,7 @@ class PrivacyPlugin extends PluginClass {
   ///
   ///  Returns:
   ///    New list, or existing list if it exists.
-  PrivacyItem newItem(String type, String value, String action, int order, List<String> blocked) {
+  PrivacyItem newItem(String? type, String? value, String? action, int order, List<String> blocked) {
     PrivacyItem item = new PrivacyItem();
     item.type = type;
     item.value = value;
@@ -121,8 +121,8 @@ class PrivacyPlugin extends PluginClass {
   ///    (Function) failCallback - Called upon fail deletion.
   deleteList(String name, Function successCallback, Function failCallback) {
     name = name ?? '';
-    this.connection.sendIQ(
-        Strophe.$iq({'type': "set", 'id': this.connection.getUniqueId("privacy")})
+    this.connection!.sendIQ(
+        Strophe.$iq({'type': "set", 'id': this.connection!.getUniqueId("privacy")})
             .c("query", {'xmlns': Strophe.NS['PRIVACY']}).c("list", {'name': name}).tree(), () {
       this.lists.remove(name);
       if (successCallback != null)
@@ -144,15 +144,15 @@ class PrivacyPlugin extends PluginClass {
   ///
   ///  Returns:
   ///    True if list is ok, and is sent to server, false otherwise.
-  saveList(String name, [Function successCallback, Function failCallback]) {
+  saveList(String name, [Function? successCallback, Function? failCallback]) {
     if (this.lists[name] == null) {
       Strophe.error("Trying to save uninitialized list");
       //throw {'error': "List not found"};
       this.newList(name);
     }
-    PrivacyList listModel = this.lists[name];
+    PrivacyList listModel = this.lists[name]!;
     if (!listModel.validate()) return false;
-    StanzaBuilder listIQ = Strophe.$iq({'type': "set", 'id': this.connection.getUniqueId("privacy")});
+    StanzaBuilder listIQ = Strophe.$iq({'type': "set", 'id': this.connection!.getUniqueId("privacy")});
     StanzaBuilder list = listIQ.c("query", {'xmlns': Strophe.NS['PRIVACY']}).c("list", {'name': name});
 
     int count = listModel.items.length;
@@ -166,7 +166,7 @@ class PrivacyPlugin extends PluginClass {
       }
       itemNode.up();
     }
-    this.connection.sendIQ(listIQ.tree(), () {
+    this.connection!.sendIQ(listIQ.tree(), () {
       listModel._isPulled = true;
       if (successCallback != null)
         try {
@@ -185,10 +185,10 @@ class PrivacyPlugin extends PluginClass {
   ///    (String) name - List name.
   ///    (Function) successCallback - Called upon successful load.
   ///    (Function) failCallback - Called upon fail load.
-  loadList(String name, [Function successCallback, Function failCallback]) {
+  loadList(String name, [Function? successCallback, Function? failCallback]) {
     name = name ?? '';
-    this.connection.sendIQ(
-        Strophe.$iq({'type': "get", 'id': this.connection.getUniqueId("privacy")})
+    this.connection!.sendIQ(
+        Strophe.$iq({'type': "get", 'id': this.connection!.getUniqueId("privacy")})
             .c("query", {'xmlns': Strophe.NS['PRIVACY']}).c("list", {'name': name}).tree(), (XmlNode element) {
       XmlElement stanza;
       if (element is XmlDocument)
@@ -199,7 +199,7 @@ class PrivacyPlugin extends PluginClass {
       int listsSize = lists.length;
       for (int i = 0; i < listsSize; ++i) {
         XmlElement list = lists[i];
-        PrivacyList listModel = this.newList(list.getAttribute("name"));
+        PrivacyList listModel = this.newList(list.getAttribute("name"))!;
         listModel.items = [];
         List<XmlElement> items = list.findAllElements("item").toList();
         int itemsSize = items.length;
@@ -210,7 +210,7 @@ class PrivacyPlugin extends PluginClass {
           int nodesSize = blockNodes.length;
           for (int k = 0; k < nodesSize; ++k) blocks.add((blockNodes[k] as XmlElement).name.qualified);
           listModel.items.add(this.newItem(item.getAttribute('type'), item.getAttribute('value'), item.getAttribute('action'),
-              int.parse(item.getAttribute('order')) ?? 0, blocks));
+              int.parse(item.getAttribute('order')!) ?? 0, blocks));
         }
       }
       if (successCallback != null)
@@ -229,11 +229,11 @@ class PrivacyPlugin extends PluginClass {
   ///    (String) name - List name.
   ///    (Function) successCallback - Called upon successful setting.
   ///    (Function) failCallback - Called upon fail setting.
-  setActive(String name, [Function successCallback, Function failCallback]) {
+  setActive(String name, [Function? successCallback, Function? failCallback]) {
     StanzaBuilder iq =
-        Strophe.$iq({'type': "set", 'id': this.connection.getUniqueId("privacy")}).c("query", {'xmlns': Strophe.NS['PRIVACY']}).c("active");
+        Strophe.$iq({'type': "set", 'id': this.connection!.getUniqueId("privacy")}).c("query", {'xmlns': Strophe.NS['PRIVACY']}).c("active");
     if (name != null && name.isNotEmpty) iq.attrs({'name': name});
-    this.connection.sendIQ(iq.tree(), () {
+    this.connection!.sendIQ(iq.tree(), () {
       this._active = name;
       if (successCallback != null)
         try {
@@ -246,7 +246,7 @@ class PrivacyPlugin extends PluginClass {
 
   /// Function: getActive
   ///  Returns currently active list of null.
-  String getActive() {
+  String? getActive() {
     return this._active;
   }
 
@@ -257,11 +257,11 @@ class PrivacyPlugin extends PluginClass {
   ///    (String) name - List name.
   ///    (Function) successCallback - Called upon successful setting.
   ///    (Function) failCallback - Called upon fail setting.
-  setDefault(String name, [Function successCallback, Function failCallback]) {
+  setDefault(String name, [Function? successCallback, Function? failCallback]) {
     StanzaBuilder iq =
-        Strophe.$iq({'type': "set", 'id': this.connection.getUniqueId("privacy")}).c("query", {'xmlns': Strophe.NS['PRIVACY']}).c("default");
+        Strophe.$iq({'type': "set", 'id': this.connection!.getUniqueId("privacy")}).c("query", {'xmlns': Strophe.NS['PRIVACY']}).c("default");
     if (name != null && name.isNotEmpty) iq.attrs({'name': name});
-    this.connection.sendIQ(iq.tree(), () {
+    this.connection!.sendIQ(iq.tree(), () {
       this._default = name;
       if (successCallback != null)
         try {
@@ -274,7 +274,7 @@ class PrivacyPlugin extends PluginClass {
 
   /// Function: getDefault
   ///  Returns currently default list of null.
-  String getDefault() {
+  String? getDefault() {
     return this._default;
   }
 }
@@ -284,20 +284,20 @@ class PrivacyPlugin extends PluginClass {
 class PrivacyItem {
   /// Variable: type
   ///  One of [jid, group, subscription].
-  String type;
-  String value;
+  String? type;
+  String? value;
 
   /// Variable: action
   ///  One of [allow, deny].
   ///
   ///  Not null. Action to be execute.
-  String action;
+  String? action;
 
   /// Variable: order
   ///  The order in which privacy list items are processed.
   ///
   ///  Unique, not-null, non-negative integer.
-  int order;
+  int? order;
 
   /// Variable: blocked
   ///  List of blocked stanzas.
@@ -308,11 +308,11 @@ class PrivacyItem {
   /// Function: validate
   ///  Checks if item is of valid structure
   bool validate() {
-    if (["jid", "group", "subscription", ""].indexOf(this.type) < 0) return false;
+    if (["jid", "group", "subscription", ""].indexOf(this.type!) < 0) return false;
     if (this.type == "subscription") {
-      if (["both", "to", "from", "none"].indexOf(this.value) < 0) return false;
+      if (["both", "to", "from", "none"].indexOf(this.value!) < 0) return false;
     }
-    if (["allow", "deny"].indexOf(this.action) < 0) return false;
+    if (["allow", "deny"].indexOf(this.action!) < 0) return false;
     bool hasMatch = new RegExp(r"^\d+$").hasMatch(this.order.toString());
     if (this.order == 0 || !hasMatch) return false;
     if (this.blocked.length > 0) {
@@ -347,7 +347,7 @@ class PrivacyList {
   ///  List name.
   ///
   ///  Not changeable. Create new, copy this one, and delete, if you wish to rename.
-  String _name;
+  String? _name;
 
   /// PrivateVariable: _isPulled
   ///  If list is pulled from server and up to date.
@@ -361,7 +361,7 @@ class PrivacyList {
 
   /// Function: getName
   /// Returns list name
-  String getName() {
+  String? getName() {
     return this._name;
   }
 
@@ -378,7 +378,7 @@ class PrivacyList {
   /// Function: validate
   /// Checks if list is of valid structure
   bool validate() {
-    List<int> orders = [];
+    List<int?> orders = [];
     this.items = this.items.where((PrivacyItem item) {
       return item != null;
     }).toList();

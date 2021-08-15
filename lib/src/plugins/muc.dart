@@ -15,24 +15,24 @@ class MucPlugin extends PluginClass {
 
   Map<String, XmppRoom> rooms = {};
   List<String> roomNames = [];
-  StanzaHandler _mucHandler;
-  MucPlugin _muc;
+  StanzaHandler? _mucHandler;
+  MucPlugin? _muc;
 
   /*Function
   Initialize the MUC plugin. Sets the correct connection object and
   extends the namesace.
    */
-  MucPlugin get muc {
+  MucPlugin? get muc {
     return _muc;
   }
 
   init(StropheConnection conn) {
     this.connection = conn;
     this._mucHandler = null;
-    Strophe.addNamespace('MUC_OWNER', Strophe.NS['MUC'] + "#owner");
-    Strophe.addNamespace('MUC_ADMIN', Strophe.NS['MUC'] + "#admin");
-    Strophe.addNamespace('MUC_USER', Strophe.NS['MUC'] + "#user");
-    Strophe.addNamespace('MUC_ROOMCONF', Strophe.NS['MUC'] + "#roomconfig");
+    Strophe.addNamespace('MUC_OWNER', Strophe.NS['MUC']! + "#owner");
+    Strophe.addNamespace('MUC_ADMIN', Strophe.NS['MUC']! + "#admin");
+    Strophe.addNamespace('MUC_USER', Strophe.NS['MUC']! + "#user");
+    Strophe.addNamespace('MUC_ROOMCONF', Strophe.NS['MUC']! + "#roomconfig");
     return Strophe.addNamespace('MUC_REGISTER', "jabber:iq:register");
   }
 
@@ -51,28 +51,28 @@ class MucPlugin extends PluginClass {
   (Object) history_attrs - Optional attributes for retrieving history
   (XML DOM Element) extended_presence - Optional XML for extending presence
    */
-  join(String room, String nick,
-      [Function msgHandlerCb,
-      Function presHandlerCb,
-      Function rosterCb,
-      String password,
-      Map<String, dynamic> historyAttrs,
-      XmlNode extendedPresence]) {
+  join(String room, String? nick,
+      [Function? msgHandlerCb,
+      Function? presHandlerCb,
+      Function? rosterCb,
+      String? password,
+      Map<String, dynamic>? historyAttrs,
+      XmlNode? extendedPresence]) {
     StanzaBuilder pres;
     String roomNick = this.testAppendNick(room, nick);
-    pres = Strophe.$pres({'from': this.connection.jid, 'to': roomNick}).c("x", {'xmlns': Strophe.NS['MUC']});
+    pres = Strophe.$pres({'from': this.connection!.jid, 'to': roomNick}).c("x", {'xmlns': Strophe.NS['MUC']});
     if (historyAttrs != null) {
       pres = pres.c("history", historyAttrs).up();
     }
     if (password != null && password.isNotEmpty) {
-      pres.cnode(Strophe.xmlElement("password", attrs: [], text: password));
+      pres.cnode(Strophe.xmlElement("password", attrs: [], text: password)!);
     }
     if (extendedPresence != null) {
       pres.up().cnode(extendedPresence);
     }
     if (this._mucHandler == null) {
-      this._mucHandler = this.connection.addHandler((XmlElement stanza) {
-        String from = stanza.getAttribute('from');
+      this._mucHandler = this.connection!.addHandler((XmlElement stanza) {
+        String? from = stanza.getAttribute('from');
         if (from == null || from.isEmpty) {
           return true;
         }
@@ -80,28 +80,28 @@ class MucPlugin extends PluginClass {
         if (this.rooms[roomname] == null) {
           return true;
         }
-        XmppRoom roomAt = this.rooms[roomname];
-        Map handlers = {};
+        XmppRoom? roomAt = this.rooms[roomname];
+        Map? handlers = {};
         if (stanza.name.qualified == "message") {
           if (roomAt != null) handlers = roomAt._message_handlers;
         } else if (stanza.name.qualified == "presence") {
           List<XmlElement> xquery = stanza.findAllElements("x").toList();
           if (xquery.length > 0) {
             XmlElement x;
-            String xmlns;
+            String? xmlns;
             for (int i = 0, len = xquery.length; i < len; i++) {
               x = xquery[i];
               xmlns = x.getAttribute("xmlns");
-              if (xmlns != null && new RegExp(Strophe.NS['MUC']).hasMatch(xmlns)) {
+              if (xmlns != null && new RegExp(Strophe.NS['MUC']!).hasMatch(xmlns)) {
                 if (roomAt != null) handlers = roomAt._presence_handlers;
                 break;
               }
             }
           }
         }
-        handlers.forEach((key, value) {
+        handlers!.forEach((key, value) {
           if (!value(stanza, [room])) {
-            handlers.remove(key);
+            handlers!.remove(key);
           }
         });
         return true;
@@ -110,17 +110,17 @@ class MucPlugin extends PluginClass {
     if (this.rooms[room] == null) {
       this.rooms[room] = new XmppRoom(this, room, nick, password);
       if (presHandlerCb != null) {
-        this.rooms[room].addHandler('presence', presHandlerCb);
+        this.rooms[room]!.addHandler('presence', presHandlerCb);
       }
       if (msgHandlerCb != null) {
-        this.rooms[room].addHandler('message', msgHandlerCb);
+        this.rooms[room]!.addHandler('message', msgHandlerCb);
       }
       if (rosterCb != null) {
-        this.rooms[room].addHandler('roster', rosterCb);
+        this.rooms[room]!.addHandler('roster', rosterCb);
       }
       this.roomNames.add(room);
     }
-    return this.connection.send(pres);
+    return this.connection!.send(pres);
   }
 
   /*Function
@@ -133,26 +133,26 @@ class MucPlugin extends PluginClass {
   Returns:
   iqid - The unique id for the room leave.
    */
-  leave(String room, String nick, [Function handlerCb, String exitMsg]) {
+  leave(String room, String? nick, [Function? handlerCb, String? exitMsg]) {
     int id = this.roomNames.indexOf(room);
     this.rooms.remove(room);
     if (id >= 0) {
       this.roomNames.removeAt(id);
       if (this.roomNames.length == 0) {
-        this.connection.deleteHandler(this._mucHandler);
+        this.connection!.deleteHandler(this._mucHandler);
         this._mucHandler = null;
       }
     }
     String roomNick = this.testAppendNick(room, nick);
-    String presenceid = this.connection.getUniqueId();
-    StanzaBuilder presence = Strophe.$pres({'type': "unavailable", 'id': presenceid, 'from': this.connection.jid, 'to': roomNick});
+    String presenceid = this.connection!.getUniqueId();
+    StanzaBuilder presence = Strophe.$pres({'type': "unavailable", 'id': presenceid, 'from': this.connection!.jid, 'to': roomNick});
     if (exitMsg != null) {
       presence.c("status", null, exitMsg);
     }
     if (handlerCb != null) {
-      this.connection.addHandler(handlerCb, null, "presence", null, presenceid);
+      this.connection!.addHandler(handlerCb, null, "presence", null, presenceid);
     }
-    this.connection.send(presence);
+    this.connection!.send(presence);
     return presenceid;
   }
 
@@ -167,16 +167,16 @@ class MucPlugin extends PluginClass {
   Returns:
   msgiq - the unique id used to send the message
    */
-  String message(String room, String nick, String message, [String htmlMessage, String type, String msgid]) {
+  String message(String room, String? nick, String message, [String? htmlMessage, String? type, String? msgid]) {
     String roomNick = this.testAppendNick(room, nick);
     type = type ?? (nick != null ? "chat" : "groupchat");
-    msgid = msgid ?? this.connection.getUniqueId();
-    StanzaBuilder msg = Strophe.$msg({'to': roomNick, 'from': this.connection.jid, 'type': type, 'id': msgid}).c("body").t(message);
+    msgid = msgid ?? this.connection!.getUniqueId();
+    StanzaBuilder msg = Strophe.$msg({'to': roomNick, 'from': this.connection!.jid, 'type': type, 'id': msgid}).c("body").t(message);
     msg.up();
     if (htmlMessage != null) {
       msg.c("html", {'xmlns': Strophe.NS['XHTML_IM']}).c("body", {'xmlns': Strophe.NS['XHTML']}).h(htmlMessage);
       if (msg.currentNode != null && msg.currentNode.children.length == 0) {
-        XmlNode parent = msg.currentNode.parent;
+        XmlNode? parent = msg.currentNode.parent;
         msg.up().up();
         msg.currentNode.children.remove(parent);
       } else {
@@ -184,7 +184,7 @@ class MucPlugin extends PluginClass {
       }
     }
     msg.c("x", {'xmlns': "jabber:x:event"}).c("composing");
-    this.connection.send(msg);
+    this.connection!.send(msg);
     return msgid;
   }
 
@@ -198,7 +198,7 @@ class MucPlugin extends PluginClass {
   Returns:
   msgiq - the unique id used to send the message
    */
-  groupchat(String room, String message, [String htmlMessage, String msgid]) {
+  groupchat(String room, String message, [String? htmlMessage, String? msgid]) {
     return this.message(room, null, message, htmlMessage, "groupchat", msgid);
   }
 
@@ -211,14 +211,14 @@ class MucPlugin extends PluginClass {
   Returns:
   msgiq - the unique id used to send the invitation
    */
-  String invite(String room, String receiver, [String reason]) {
-    String msgid = this.connection.getUniqueId();
+  String invite(String? room, String receiver, [String? reason]) {
+    String msgid = this.connection!.getUniqueId();
     StanzaBuilder invitation =
-        Strophe.$msg({'from': this.connection.jid, 'to': room, 'id': msgid}).c('x', {'xmlns': Strophe.NS['MUC_USER']}).c('invite', {'to': receiver});
+        Strophe.$msg({'from': this.connection!.jid, 'to': room, 'id': msgid}).c('x', {'xmlns': Strophe.NS['MUC_USER']}).c('invite', {'to': receiver});
     if (reason != null) {
       invitation.c('reason', null, reason);
     }
-    this.connection.send(invitation);
+    this.connection!.send(invitation);
     return msgid;
   }
 
@@ -231,10 +231,10 @@ class MucPlugin extends PluginClass {
   Returns:
   msgiq - the unique id used to send the invitation
    */
-  String multipleInvites(String room, List<String> receivers, [String reason]) {
+  String multipleInvites(String? room, List<String> receivers, [String? reason]) {
     String msgid, receiver;
-    msgid = this.connection.getUniqueId();
-    StanzaBuilder invitation = Strophe.$msg({'from': this.connection.jid, 'to': room, 'id': msgid}).c('x', {'xmlns': Strophe.NS['MUC_USER']});
+    msgid = this.connection!.getUniqueId();
+    StanzaBuilder invitation = Strophe.$msg({'from': this.connection!.jid, 'to': room, 'id': msgid}).c('x', {'xmlns': Strophe.NS['MUC_USER']});
     for (int i = 0, len = receivers.length; i < len; i++) {
       receiver = receivers[i];
       invitation.c('invite', {'to': receiver});
@@ -244,7 +244,7 @@ class MucPlugin extends PluginClass {
       }
       invitation.up();
     }
-    this.connection.send(invitation);
+    this.connection!.send(invitation);
     return msgid;
   }
 
@@ -258,17 +258,17 @@ class MucPlugin extends PluginClass {
   Returns:
   msgiq - the unique id used to send the invitation
    */
-  directInvite(String room, String receiver, [String reason, String password]) {
-    String msgid = this.connection.getUniqueId();
-    Map<String, String> attrs = {'xmlns': 'jabber:x:conference', 'jid': room};
+  directInvite(String? room, String receiver, [String? reason, String? password]) {
+    String msgid = this.connection!.getUniqueId();
+    Map<String, String?> attrs = {'xmlns': 'jabber:x:conference', 'jid': room};
     if (reason != null) {
       attrs['reason'] = reason;
     }
     if (password != null) {
       attrs['password'] = password;
     }
-    StanzaBuilder invitation = Strophe.$msg({'from': this.connection.jid, 'to': receiver, 'id': msgid}).c('x', attrs);
-    this.connection.send(invitation);
+    StanzaBuilder invitation = Strophe.$msg({'from': this.connection!.jid, 'to': receiver, 'id': msgid}).c('x', attrs);
+    this.connection!.send(invitation);
     return msgid;
   }
 
@@ -280,10 +280,10 @@ class MucPlugin extends PluginClass {
   Returns:
   id - the unique id used to send the info request
    */
-  queryOccupants(String room, [Function successCb, Function errorCb]) {
-    Map<String, String> attrs = {'xmlns': Strophe.NS['DISCO_ITEMS']};
-    StanzaBuilder info = Strophe.$iq({'from': this.connection.jid, 'to': room, 'type': 'get'}).c('query', attrs);
-    return this.connection.sendIQ(info.tree(), successCb, errorCb);
+  queryOccupants(String? room, [Function? successCb, Function? errorCb]) {
+    Map<String, String?> attrs = {'xmlns': Strophe.NS['DISCO_ITEMS']};
+    StanzaBuilder info = Strophe.$iq({'from': this.connection!.jid, 'to': room, 'type': 'get'}).c('query', attrs);
+    return this.connection!.sendIQ(info.tree(), successCb, errorCb);
   }
 
   /*Function
@@ -294,10 +294,10 @@ class MucPlugin extends PluginClass {
   Returns:
   id - the unique id used to send the configuration request
    */
-  configure(String room, [Function successCb, Function errorCb]) {
+  configure(String? room, [Function? successCb, Function? errorCb]) {
     StanzaBuilder config = Strophe.$iq({'to': room, 'type': "get"}).c("query", {'xmlns': Strophe.NS['MUC_OWNER']});
-    XmlElement stanza = config.tree();
-    return this.connection.sendIQ(stanza, successCb, errorCb);
+    XmlElement? stanza = config.tree();
+    return this.connection!.sendIQ(stanza, successCb, errorCb);
   }
 
   /*Function
@@ -307,11 +307,11 @@ class MucPlugin extends PluginClass {
   Returns:
   id - the unique id used to cancel the configuration.
    */
-  cancelConfigure(String room) {
+  cancelConfigure(String? room) {
     StanzaBuilder config =
         Strophe.$iq({'to': room, 'type': "set"}).c("query", {'xmlns': Strophe.NS['MUC_OWNER']}).c("x", {'xmlns': "jabber:x:data", 'type': "cancel"});
-    XmlElement stanza = config.tree();
-    return this.connection.sendIQ(stanza);
+    XmlElement? stanza = config.tree();
+    return this.connection!.sendIQ(stanza);
   }
 
   /*Function
@@ -322,7 +322,7 @@ class MucPlugin extends PluginClass {
   Returns:
   id - the unique id used to save the configuration.
    */
-  saveConfiguration(String room, List<XmlElement> config, [Function successCb, Function errorCb]) {
+  saveConfiguration(String? room, List<XmlElement> config, [Function? successCb, Function? errorCb]) {
     StanzaBuilder iq = Strophe.$iq({'to': room, 'type': "set"}).c("query", {'xmlns': Strophe.NS['MUC_OWNER']});
     iq.c("x", {'xmlns': "jabber:x:data", 'type': "submit"});
     XmlElement conf;
@@ -330,8 +330,8 @@ class MucPlugin extends PluginClass {
       conf = config[i];
       iq.cnode(conf).up();
     }
-    XmlElement stanza = iq.tree();
-    return this.connection.sendIQ(stanza, successCb, errorCb);
+    XmlElement? stanza = iq.tree();
+    return this.connection!.sendIQ(stanza, successCb, errorCb);
   }
 
   /*Function
@@ -340,10 +340,10 @@ class MucPlugin extends PluginClass {
   Returns:
   id - the unique id used to create the chat room.
    */
-  createInstantRoom(String room, [Function successCb, Function errorCb]) {
+  createInstantRoom(String room, [Function? successCb, Function? errorCb]) {
     StanzaBuilder roomiq =
         Strophe.$iq({'to': room, 'type': "set"}).c("query", {'xmlns': Strophe.NS['MUC_OWNER']}).c("x", {'xmlns': "jabber:x:data", 'type': "submit"});
-    return this.connection.sendIQ(roomiq.tree(), successCb, errorCb);
+    return this.connection!.sendIQ(roomiq.tree(), successCb, errorCb);
   }
 
   /*Function
@@ -353,14 +353,14 @@ class MucPlugin extends PluginClass {
   Returns:
   id - the unique id used to create the chat room.
    */
-  createConfiguredRoom(String room, Map<String, String> config, [Function successCb, Function errorCb]) {
+  createConfiguredRoom(String room, Map<String, String> config, [Function? successCb, Function? errorCb]) {
     StanzaBuilder roomiq =
         Strophe.$iq({'to': room, 'type': "set"}).c("query", {'xmlns': Strophe.NS['MUC_OWNER']}).c("x", {'xmlns': "jabber:x:data", 'type': "submit"});
     roomiq.c('field', {'var': 'FORM_TYPE'}).c('value').t('http://jabber.org/protocol/muc#roomconfig').up().up();
     config.forEach((String key, String value) {
       roomiq.c('field', {'var': key}).c('value').t(value).up().up();
     });
-    return this.connection.sendIQ(roomiq.tree(), successCb, errorCb);
+    return this.connection!.sendIQ(roomiq.tree(), successCb, errorCb);
   }
 
   /*Function
@@ -369,10 +369,10 @@ class MucPlugin extends PluginClass {
   (String) room - The multi-user chat room name.
   (String) topic - Topic message.
    */
-  setTopic(String room, String topic) {
+  setTopic(String? room, String topic) {
     StanzaBuilder msg =
-        Strophe.$msg({'to': room, 'from': this.connection.jid, 'type': "groupchat"}).c("subject", {'xmlns': "jabber:client"}).t(topic);
-    return this.connection.send(msg.tree());
+        Strophe.$msg({'to': room, 'from': this.connection!.jid, 'type': "groupchat"}).c("subject", {'xmlns': "jabber:client"}).t(topic);
+    return this.connection!.send(msg.tree());
   }
 
   /*Function
@@ -389,12 +389,12 @@ class MucPlugin extends PluginClass {
   Returns:
   iq - the id of the mode change request.
    */
-  _modifyPrivilege(String room, StanzaBuilder item, [String reason, Function handlerCb, Function errorCb]) {
+  _modifyPrivilege(String? room, StanzaBuilder item, [String? reason, Function? handlerCb, Function? errorCb]) {
     StanzaBuilder iq = Strophe.$iq({'to': room, 'type': "set"}).c("query", {'xmlns': Strophe.NS['MUC_ADMIN']}).cnode(item.currentNode);
     if (reason != null && reason.isNotEmpty) {
       iq.c("reason", null, reason);
     }
-    return this.connection.sendIQ(iq.tree(), handlerCb, errorCb);
+    return this.connection!.sendIQ(iq.tree(), handlerCb, errorCb);
   }
 
   /*Function
@@ -412,28 +412,28 @@ class MucPlugin extends PluginClass {
   Returns:
   iq - the id of the mode change request.
    */
-  modifyRole(String room, String nick, String role, [String reason, Function handlerCb, Function errorCb]) {
+  modifyRole(String? room, String? nick, String role, [String? reason, Function? handlerCb, Function? errorCb]) {
     StanzaBuilder item = Strophe.$build("item", {'nick': nick, 'role': role});
     return this._modifyPrivilege(room, item, reason, handlerCb, errorCb);
   }
 
-  kick(String room, String nick, [String reason, Function handlerCb, Function errorCb]) {
+  kick(String? room, String? nick, [String? reason, Function? handlerCb, Function? errorCb]) {
     return this.modifyRole(room, nick, 'none', reason, handlerCb, errorCb);
   }
 
-  voice(String room, String nick, [String reason, Function handlerCb, Function errorCb]) {
+  voice(String? room, String? nick, [String? reason, Function? handlerCb, Function? errorCb]) {
     return this.modifyRole(room, nick, 'participant', reason, handlerCb, errorCb);
   }
 
-  mute(String room, String nick, [String reason, Function handlerCb, Function errorCb]) {
+  mute(String? room, String? nick, [String? reason, Function? handlerCb, Function? errorCb]) {
     return this.modifyRole(room, nick, 'visitor', reason, handlerCb, errorCb);
   }
 
-  op(String room, String nick, [String reason, Function handlerCb, Function errorCb]) {
+  op(String? room, String? nick, [String? reason, Function? handlerCb, Function? errorCb]) {
     return this.modifyRole(room, nick, 'moderator', reason, handlerCb, errorCb);
   }
 
-  deop(String room, String nick, [String reason, Function handlerCb, Function errorCb]) {
+  deop(String? room, String? nick, [String? reason, Function? handlerCb, Function? errorCb]) {
     return this.modifyRole(room, nick, 'participant', reason, handlerCb, errorCb);
   }
 
@@ -451,28 +451,28 @@ class MucPlugin extends PluginClass {
   Returns:
   iq - the id of the mode change request.
    */
-  modifyAffiliation(String room, String jid, String affiliation, [String reason, Function handlerCb, Function errorCb]) {
+  modifyAffiliation(String? room, String? jid, String affiliation, [String? reason, Function? handlerCb, Function? errorCb]) {
     StanzaBuilder item = Strophe.$build("item", {'jid': jid, 'affiliation': affiliation});
     return this._modifyPrivilege(room, item, reason, handlerCb, errorCb);
   }
 
-  ban(String room, String jid, [String reason, Function handlerCb, Function errorCb]) {
+  ban(String? room, String? jid, [String? reason, Function? handlerCb, Function? errorCb]) {
     return this.modifyAffiliation(room, jid, 'outcast', reason, handlerCb, errorCb);
   }
 
-  member(String room, String jid, [String reason, Function handlerCb, Function errorCb]) {
+  member(String? room, String? jid, [String? reason, Function? handlerCb, Function? errorCb]) {
     return this.modifyAffiliation(room, jid, 'member', reason, handlerCb, errorCb);
   }
 
-  revoke(String room, String jid, [String reason, Function handlerCb, Function errorCb]) {
+  revoke(String? room, String? jid, [String? reason, Function? handlerCb, Function? errorCb]) {
     return this.modifyAffiliation(room, jid, 'none', reason, handlerCb, errorCb);
   }
 
-  owner(String room, String jid, [String reason, Function handlerCb, Function errorCb]) {
+  owner(String? room, String? jid, [String? reason, Function? handlerCb, Function? errorCb]) {
     return this.modifyAffiliation(room, jid, 'owner', reason, handlerCb, errorCb);
   }
 
-  admin(String room, String jid, [String reason, Function handlerCb, Function errorCb]) {
+  admin(String? room, String? jid, [String? reason, Function? handlerCb, Function? errorCb]) {
     return this.modifyAffiliation(room, jid, 'admin', reason, handlerCb, errorCb);
   }
 
@@ -482,10 +482,10 @@ class MucPlugin extends PluginClass {
   (String) room - The multi-user chat room name.
   (String) user - The new nick name.
    */
-  changeNick(String room, String user) {
+  changeNick(String room, String? user) {
     String roomNick = this.testAppendNick(room, user);
-    StanzaBuilder presence = Strophe.$pres({'from': this.connection.jid, 'to': roomNick, 'id': this.connection.getUniqueId()});
-    return this.connection.send(presence.tree());
+    StanzaBuilder presence = Strophe.$pres({'from': this.connection!.jid, 'to': roomNick, 'id': this.connection!.getUniqueId()});
+    return this.connection!.send(presence.tree());
   }
 
   /*Function
@@ -496,16 +496,16 @@ class MucPlugin extends PluginClass {
   (String) show - The new show-text.
   (String) status - The new status-text.
    */
-  setStatus(String room, String user, [String show, String status]) {
+  setStatus(String room, String? user, [String? show, String? status]) {
     String roomNick = this.testAppendNick(room, user);
-    StanzaBuilder presence = Strophe.$pres({'from': this.connection.jid, 'to': roomNick});
+    StanzaBuilder presence = Strophe.$pres({'from': this.connection!.jid, 'to': roomNick});
     if (show != null) {
       presence.c('show', {}, show).up();
     }
     if (status != null) {
       presence.c('status', {}, status);
     }
-    return this.connection.send(presence.tree());
+    return this.connection!.send(presence.tree());
   }
 
   /*Function
@@ -516,20 +516,20 @@ class MucPlugin extends PluginClass {
   (Function) handleCb - Function to call for room list return.
   (Function) errorCb - Function to call on error.
    */
-  registrationRequest(String room, Function handleCb, [Function errorCb]) {
-    StanzaBuilder iq = Strophe.$iq({'to': room, 'from': this.connection.jid, 'type': "get"}).c("query", {'xmlns': Strophe.NS['MUC_REGISTER']});
-    return this.connection.sendIQ(iq.tree(), (XmlElement stanza) {
+  registrationRequest(String room, Function handleCb, [Function? errorCb]) {
+    StanzaBuilder iq = Strophe.$iq({'to': room, 'from': this.connection!.jid, 'type': "get"}).c("query", {'xmlns': Strophe.NS['MUC_REGISTER']});
+    return this.connection!.sendIQ(iq.tree(), (XmlElement stanza) {
       List<XmlElement> fields = stanza.findAllElements('field').toList();
       XmlElement field;
       Map<String, List> fieldsMap = {'required': [], 'optional': []};
-      Map<String, String> fieldMap;
+      Map<String, String?> fieldMap;
       for (int i = 0, len = fields.length; i < len; i++) {
         field = fields[i];
         fieldMap = {"var": field.getAttribute('var'), 'label': field.getAttribute('label'), 'type': field.getAttribute('type')};
         if (field.findAllElements('required').length > 0) {
-          fieldsMap['required'].add(fieldMap);
+          fieldsMap['required']!.add(fieldMap);
         } else {
-          fieldsMap['optional'].add(fieldMap);
+          fieldsMap['optional']!.add(fieldMap);
         }
       }
       return handleCb(fields);
@@ -543,14 +543,14 @@ class MucPlugin extends PluginClass {
   (Function) handleCb - Function to call for room list return.
   (Function) errorCb - Function to call on error.
    */
-  submitRegistrationForm(String room, Map<String, dynamic> fields, [Function handleCb, Function errorCb]) {
+  submitRegistrationForm(String room, Map<String, dynamic> fields, [Function? handleCb, Function? errorCb]) {
     StanzaBuilder iq = Strophe.$iq({'to': room, 'type': "set"}).c("query", {'xmlns': Strophe.NS['MUC_REGISTER']});
     iq.c("x", {'xmlns': "jabber:x:data", 'type': "submit"});
     iq.c('field', {'var': 'FORM_TYPE'}).c('value').t('http://jabber.org/protocol/muc#register').up().up();
     fields.forEach((String key, value) {
       iq.c('field', {'var': key}).c('value').t(value).up().up();
     });
-    return this.connection.sendIQ(iq.tree(), handleCb, errorCb);
+    return this.connection!.sendIQ(iq.tree(), handleCb, errorCb);
   }
 
   /*Function
@@ -560,39 +560,39 @@ class MucPlugin extends PluginClass {
   (String) handleCb - Function to call for room list return.
   (String) errorCb - Function to call on error.
    */
-  listRooms(String server, [Function handleCb, errorCb]) {
-    StanzaBuilder iq = Strophe.$iq({'to': server, 'from': this.connection.jid, 'type': "get"}).c("query", {'xmlns': Strophe.NS['DISCO_ITEMS']});
-    return this.connection.sendIQ(iq.tree(), handleCb, errorCb);
+  listRooms(String server, [Function? handleCb, errorCb]) {
+    StanzaBuilder iq = Strophe.$iq({'to': server, 'from': this.connection!.jid, 'type': "get"}).c("query", {'xmlns': Strophe.NS['DISCO_ITEMS']});
+    return this.connection!.sendIQ(iq.tree(), handleCb, errorCb);
   }
 
-  String testAppendNick(String room, String nick) {
+  String testAppendNick(String room, String? nick) {
     String domain, node;
-    node = Strophe.escapeNode(Strophe.getNodeFromJid(room));
+    node = Strophe.escapeNode(Strophe.getNodeFromJid(room)!);
     domain = Strophe.getDomainFromJid(room);
     return node + "@" + domain + (nick != null ? "/" + nick : "");
   }
 }
 
 class XmppRoom {
-  MucPlugin client;
+  MucPlugin? client;
 
-  String name;
+  String? name;
 
-  String nick;
+  String? nick;
 
-  String password;
+  String? password;
 
-  Map<String, Occupant> roster;
+  late Map<String?, Occupant?> roster;
 
-  Map<int, Function> _message_handlers;
+  Map<int?, Function>? _message_handlers;
 
-  Map<int, Function> _presence_handlers;
+  Map<int?, Function>? _presence_handlers;
 
-  Map<int, Function> _roster_handlers;
+  late Map<int?, Function> _roster_handlers;
 
-  int _handler_ids;
+  int _handler_ids = 0;
 
-  XmppRoom(MucPlugin client, String name, String nick1, String password1) {
+  XmppRoom(MucPlugin client, String name, String? nick1, String? password1) {
     this.client = client;
     this.name = name;
     this.nick = nick1;
@@ -602,117 +602,117 @@ class XmppRoom {
     this._presence_handlers = {};
     this._roster_handlers = {};
     this._handler_ids = 0;
-    if (this.client.muc != null) {
-      this.client = this.client.muc;
+    if (this.client!.muc != null) {
+      this.client = this.client!.muc;
     }
     this.name = Strophe.getBareJidFromJid(this.name);
     this.addHandler('presence', this._roomRosterHandler);
   }
 
   join(Function msgHandlerCb, Function presHandlerCb, Function rosterCb) {
-    return this.client.join(this.name, this.nick, msgHandlerCb, presHandlerCb, rosterCb, this.password);
+    return this.client!.join(this.name!, this.nick, msgHandlerCb, presHandlerCb, rosterCb, this.password);
   }
 
-  leave([Function handlerCb, String message]) {
-    this.client.leave(this.name, this.nick, handlerCb, message);
-    return this.client.rooms.remove(this.name);
+  leave([Function? handlerCb, String? message]) {
+    this.client!.leave(this.name!, this.nick, handlerCb, message);
+    return this.client!.rooms.remove(this.name);
   }
 
-  message(String nick, String message, [String htmlMessage, String type]) {
-    return this.client.message(this.name, nick, message, htmlMessage, type);
+  message(String nick, String message, [String? htmlMessage, String? type]) {
+    return this.client!.message(this.name!, nick, message, htmlMessage, type);
   }
 
-  groupchat(String message, [String htmlMessage]) {
-    return this.client.groupchat(this.name, message, htmlMessage);
+  groupchat(String message, [String? htmlMessage]) {
+    return this.client!.groupchat(this.name!, message, htmlMessage);
   }
 
-  invite(String receiver, [String reason]) {
-    return this.client.invite(this.name, receiver, reason);
+  invite(String receiver, [String? reason]) {
+    return this.client!.invite(this.name, receiver, reason);
   }
 
-  multipleInvites(List<String> receivers, [String reason]) {
-    return this.client.multipleInvites(this.name, receivers, reason);
+  multipleInvites(List<String> receivers, [String? reason]) {
+    return this.client!.multipleInvites(this.name, receivers, reason);
   }
 
-  directInvite(String receiver, [String reason]) {
-    return this.client.directInvite(this.name, receiver, reason, this.password);
+  directInvite(String receiver, [String? reason]) {
+    return this.client!.directInvite(this.name, receiver, reason, this.password);
   }
 
-  configure([Function handlerCb]) {
-    return this.client.configure(this.name, handlerCb);
+  configure([Function? handlerCb]) {
+    return this.client!.configure(this.name, handlerCb);
   }
 
   cancelConfigure() {
-    return this.client.cancelConfigure(this.name);
+    return this.client!.cancelConfigure(this.name);
   }
 
   saveConfiguration(List<XmlElement> config) {
-    return this.client.saveConfiguration(this.name, config);
+    return this.client!.saveConfiguration(this.name, config);
   }
 
-  queryOccupants([Function successCb, Function errorCb]) {
-    return this.client.queryOccupants(this.name, successCb, errorCb);
+  queryOccupants([Function? successCb, Function? errorCb]) {
+    return this.client!.queryOccupants(this.name, successCb, errorCb);
   }
 
   setTopic(String topic) {
-    return this.client.setTopic(this.name, topic);
+    return this.client!.setTopic(this.name, topic);
   }
 
-  modifyRole(String nick, String role, [String reason, Function successCb, Function errorCb]) {
-    return this.client.modifyRole(this.name, nick, role, reason, successCb, errorCb);
+  modifyRole(String? nick, String role, [String? reason, Function? successCb, Function? errorCb]) {
+    return this.client!.modifyRole(this.name, nick, role, reason, successCb, errorCb);
   }
 
-  kick(String nick, [String reason, Function handlerCb, Function errorCb]) {
-    return this.client.kick(this.name, nick, reason, handlerCb, errorCb);
+  kick(String? nick, [String? reason, Function? handlerCb, Function? errorCb]) {
+    return this.client!.kick(this.name, nick, reason, handlerCb, errorCb);
   }
 
-  voice(String nick, [String reason, Function handlerCb, Function errorCb]) {
-    return this.client.voice(this.name, nick, reason, handlerCb, errorCb);
+  voice(String? nick, [String? reason, Function? handlerCb, Function? errorCb]) {
+    return this.client!.voice(this.name, nick, reason, handlerCb, errorCb);
   }
 
-  mute(String nick, [String reason, Function handlerCb, Function errorCb]) {
-    return this.client.mute(this.name, nick, reason, handlerCb, errorCb);
+  mute(String? nick, [String? reason, Function? handlerCb, Function? errorCb]) {
+    return this.client!.mute(this.name, nick, reason, handlerCb, errorCb);
   }
 
-  op(String nick, [String reason, Function handlerCb, Function errorCb]) {
-    return this.client.op(this.name, nick, reason, handlerCb, errorCb);
+  op(String? nick, [String? reason, Function? handlerCb, Function? errorCb]) {
+    return this.client!.op(this.name, nick, reason, handlerCb, errorCb);
   }
 
-  deop(String nick, [String reason, Function handlerCb, Function errorCb]) {
-    return this.client.deop(this.name, nick, reason, handlerCb, errorCb);
+  deop(String? nick, [String? reason, Function? handlerCb, Function? errorCb]) {
+    return this.client!.deop(this.name, nick, reason, handlerCb, errorCb);
   }
 
-  modifyAffiliation(String jid, String affiliation, [String reason, Function successCb, Function errorCb]) {
-    return this.client.modifyAffiliation(this.name, jid, affiliation, reason, successCb, errorCb);
+  modifyAffiliation(String? jid, String affiliation, [String? reason, Function? successCb, Function? errorCb]) {
+    return this.client!.modifyAffiliation(this.name, jid, affiliation, reason, successCb, errorCb);
   }
 
-  ban(String jid, [String reason, Function handlerCb, Function errorCb]) {
-    return this.client.ban(this.name, jid, reason, handlerCb, errorCb);
+  ban(String? jid, [String? reason, Function? handlerCb, Function? errorCb]) {
+    return this.client!.ban(this.name, jid, reason, handlerCb, errorCb);
   }
 
-  member(String jid, [String reason, Function handlerCb, Function errorCb]) {
-    return this.client.member(this.name, jid, reason, handlerCb, errorCb);
+  member(String? jid, [String? reason, Function? handlerCb, Function? errorCb]) {
+    return this.client!.member(this.name, jid, reason, handlerCb, errorCb);
   }
 
-  revoke(String jid, [String reason, Function handlerCb, Function errorCb]) {
-    return this.client.revoke(this.name, jid, reason, handlerCb, errorCb);
+  revoke(String? jid, [String? reason, Function? handlerCb, Function? errorCb]) {
+    return this.client!.revoke(this.name, jid, reason, handlerCb, errorCb);
   }
 
-  owner(String jid, [String reason, Function handlerCb, Function errorCb]) {
-    return this.client.owner(this.name, jid, reason, handlerCb, errorCb);
+  owner(String? jid, [String? reason, Function? handlerCb, Function? errorCb]) {
+    return this.client!.owner(this.name, jid, reason, handlerCb, errorCb);
   }
 
-  admin(String jid, [String reason, Function handlerCb, Function errorCb]) {
-    return this.client.admin(this.name, jid, reason, handlerCb, errorCb);
+  admin(String? jid, [String? reason, Function? handlerCb, Function? errorCb]) {
+    return this.client!.admin(this.name, jid, reason, handlerCb, errorCb);
   }
 
   changeNick(String nick1) {
     this.nick = nick1;
-    return this.client.changeNick(this.name, nick);
+    return this.client!.changeNick(this.name!, nick);
   }
 
-  setStatus([String show, String status]) {
-    return this.client.setStatus(this.name, this.nick, show, status);
+  setStatus([String? show, String? status]) {
+    return this.client!.setStatus(this.name!, this.nick, show, status);
   }
 
   /*Function
@@ -725,13 +725,13 @@ class XmppRoom {
    */
 
   addHandler(String handlerType, Function handler) {
-    int id = this._handler_ids++;
+    int? id = this._handler_ids++;
     switch (handlerType.toLowerCase()) {
       case 'presence':
-        this._presence_handlers[id] = handler;
+        this._presence_handlers![id] = handler;
         break;
       case 'message':
-        this._message_handlers[id] = handler;
+        this._message_handlers![id] = handler;
         break;
       case 'roster':
         this._roster_handlers[id] = handler;
@@ -753,8 +753,8 @@ class XmppRoom {
    */
 
   removeHandler(int id) {
-    this._presence_handlers.remove(id);
-    this._message_handlers.remove(id);
+    this._presence_handlers!.remove(id);
+    this._message_handlers!.remove(id);
     return this._roster_handlers.remove(id);
   }
 
@@ -780,8 +780,8 @@ class XmppRoom {
 
   _roomRosterHandler(XmlElement pres, [room]) {
     Map<String, dynamic> data = _parsePresence(pres);
-    String nick = data['nick'];
-    String newnick = data['newnick'] ?? null;
+    String? nick = data['nick'];
+    String? newnick = data['newnick'] ?? null;
     switch (data['type']) {
       case 'error':
         return true;
@@ -789,24 +789,24 @@ class XmppRoom {
         if (newnick != null) {
           data['nick'] = newnick;
           if (this.roster[nick] != null && this.roster[newnick] != null) {
-            this.roster[nick].update(this.roster[newnick]);
+            this.roster[nick]!.update(this.roster[newnick]);
             this.roster[newnick] = this.roster[nick];
           }
           if (this.roster[nick] != null && this.roster[newnick] == null) {
-            this.roster[newnick] = this.roster[nick].update(data);
+            this.roster[newnick] = this.roster[nick]!.update(data);
           }
         }
         this.roster.remove(nick);
         break;
       default:
         if (this.roster[nick] != null) {
-          this.roster[nick].update(data);
+          this.roster[nick]!.update(data);
         } else {
           this._addOccupant(data);
         }
     }
-    Map<int, Function> ref = this._roster_handlers;
-    ref.forEach((int id, Function handler) {
+    Map<int?, Function> ref = this._roster_handlers;
+    ref.forEach((int? id, Function handler) {
       if (handler(this.roster, this) == false) {
         this._roster_handlers.remove(id);
       }
@@ -822,18 +822,18 @@ class XmppRoom {
 
   Map<String, dynamic> _parsePresence(XmlElement pres) {
     Map<String, dynamic> data = {};
-    data['nick'] = Strophe.getResourceFromJid(pres.getAttribute("from"));
+    data['nick'] = Strophe.getResourceFromJid(pres.getAttribute("from")!);
     data['type'] = pres.getAttribute("type");
     data['states'] = [];
     List<XmlNode> ref = pres.children, ref2;
     XmlElement c, c2;
     XmlElement ref1;
     for (int i = 0, len = ref.length; i < len; i++) {
-      c = ref[i];
+      c = ref[i] as XmlElement;
       switch (c.name.qualified) {
         case "error":
           data['errorcode'] = c.getAttribute("code");
-          data['error'] = (ref1 = c.children[0]) != null ? ref1.name.qualified : 0;
+          data['error'] = (ref1 = c.children[0] as XmlElement) != null ? ref1.name.qualified : 0;
           break;
         case "status":
           data['status'] = c.text ?? null;
@@ -845,7 +845,7 @@ class XmppRoom {
           if (c.getAttribute("xmlns") == Strophe.NS['MUC_USER']) {
             ref2 = c.children;
             for (int j = 0, len1 = ref2.length; j < len1; j++) {
-              c2 = ref2[j];
+              c2 = ref2[j] as XmlElement;
               switch (c2.name.qualified) {
                 case "item":
                   data['affiliation'] = c2.getAttribute("affiliation");
@@ -867,70 +867,70 @@ class XmppRoom {
 }
 
 class Occupant {
-  XmppRoom room;
+  late XmppRoom room;
 
-  String nick;
+  String? nick;
 
-  String jid;
+  String? jid;
 
-  String show;
+  String? show;
 
-  String status;
+  String? status;
 
-  String role;
+  String? role;
 
-  String affiliation;
+  String? affiliation;
 
   Occupant(Map<String, dynamic> data, XmppRoom room1) {
     this.room = room1;
     this.update(data);
   }
 
-  modifyRole(String role, [String reason, Function successCb, Function errorCb]) {
+  modifyRole(String role, [String? reason, Function? successCb, Function? errorCb]) {
     return this.room.modifyRole(this.nick, role, reason, successCb, errorCb);
   }
 
-  kick([String reason, Function handlerCb, Function errorCb]) {
+  kick([String? reason, Function? handlerCb, Function? errorCb]) {
     return this.room.kick(this.nick, reason, handlerCb, errorCb);
   }
 
-  voice([String reason, Function handlerCb, Function errorCb]) {
+  voice([String? reason, Function? handlerCb, Function? errorCb]) {
     return this.room.voice(this.nick, reason, handlerCb, errorCb);
   }
 
-  mute([String reason, Function handlerCb, Function errorCb]) {
+  mute([String? reason, Function? handlerCb, Function? errorCb]) {
     return this.room.mute(this.nick, reason, handlerCb, errorCb);
   }
 
-  op([String reason, Function handlerCb, Function errorCb]) {
+  op([String? reason, Function? handlerCb, Function? errorCb]) {
     return this.room.op(this.nick, reason, handlerCb, errorCb);
   }
 
-  deop([String reason, Function handlerCb, Function errorCb]) {
+  deop([String? reason, Function? handlerCb, Function? errorCb]) {
     return this.room.deop(this.nick, reason, handlerCb, errorCb);
   }
 
-  modifyAffiliation(String affiliation, [String reason, Function successCb, Function errorCb]) {
+  modifyAffiliation(String affiliation, [String? reason, Function? successCb, Function? errorCb]) {
     return this.room.modifyAffiliation(this.jid, affiliation, reason, successCb, errorCb);
   }
 
-  ban([String reason, Function handlerCb, Function errorCb]) {
+  ban([String? reason, Function? handlerCb, Function? errorCb]) {
     return this.room.ban(this.jid, reason, handlerCb, errorCb);
   }
 
-  member([String reason, Function handlerCb, Function errorCb]) {
+  member([String? reason, Function? handlerCb, Function? errorCb]) {
     return this.room.member(this.jid, reason, handlerCb, errorCb);
   }
 
-  revoke([String reason, Function handlerCb, Function errorCb]) {
+  revoke([String? reason, Function? handlerCb, Function? errorCb]) {
     return this.room.revoke(this.jid, reason, handlerCb, errorCb);
   }
 
-  owner([String reason, Function handlerCb, Function errorCb]) {
+  owner([String? reason, Function? handlerCb, Function? errorCb]) {
     return this.room.owner(this.jid, reason, handlerCb, errorCb);
   }
 
-  admin([String reason, Function handlerCb, Function errorCb]) {
+  admin([String? reason, Function? handlerCb, Function? errorCb]) {
     return this.room.admin(this.jid, reason, handlerCb, errorCb);
   }
 
@@ -960,11 +960,11 @@ class Occupant {
 }
 
 class RoomConfig {
-  List<String> features;
+  List<String?>? features;
 
-  List<Map<String, String>> identities;
+  List<Map<String, String>>? identities;
 
-  List<Map<String, String>> x;
+  List<Map<String, String?>>? x;
 
   RoomConfig(XmlElement info) {
     if (info != null) {
@@ -972,19 +972,19 @@ class RoomConfig {
     }
   }
 
-  Map<String, List> parse(XmlElement result) {
+  Map<String, List?> parse(XmlElement result) {
     List<XmlNode> query = result.findAllElements("query").toList()[0].children;
     this.identities = [];
     this.features = [];
     this.x = [];
-    XmlElement child, field, firstChild;
+    XmlElement? child, field, firstChild;
     List<XmlAttribute> attrs;
     Map<String, String> identity;
     XmlAttribute attr;
     List<XmlNode> ref;
     for (int i = 0, len = query.length; i < len; i++) {
-      child = query[i];
-      attrs = child.attributes;
+      child = query[i] as XmlElement?;
+      attrs = child!.attributes;
       switch (child.name.qualified) {
         case "identity":
           identity = {};
@@ -992,22 +992,22 @@ class RoomConfig {
             attr = attrs[j];
             identity[attr.name.qualified] = attr.text;
           }
-          this.identities.add(identity);
+          this.identities!.add(identity);
           break;
         case "feature":
-          this.features.add(child.getAttribute("var"));
+          this.features!.add(child.getAttribute("var"));
           break;
         case "x":
-          firstChild = child.firstChild;
-          if (!(firstChild.getAttribute("var") == 'FORM_TYPE') || !(firstChild.getAttribute("type") == 'hidden')) {
+          firstChild = child.firstChild as XmlElement?;
+          if (!(firstChild!.getAttribute("var") == 'FORM_TYPE') || !(firstChild.getAttribute("type") == 'hidden')) {
             break;
           }
           ref = child.children;
           for (int l = 0, len2 = ref.length; l < len2; l++) {
-            field = ref[l];
+            field = ref[l] as XmlElement?;
 
-            if (field.getAttribute('type') == null || field.getAttribute('type').isEmpty) {
-              this.x.add({"var": field.getAttribute("var"), 'label': field.getAttribute("label") ?? "", 'value': field.firstChild.text ?? ""});
+            if (field!.getAttribute('type') == null || field.getAttribute('type')!.isEmpty) {
+              this.x!.add({"var": field.getAttribute("var"), 'label': field.getAttribute("label") ?? "", 'value': field.firstChild!.text ?? ""});
             }
           }
       }

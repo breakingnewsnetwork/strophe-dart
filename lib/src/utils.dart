@@ -47,12 +47,11 @@ class Utils {
     return out;
   }
 
-  static List<Cookie> addCookies(Map<String, dynamic> cookies) {
-    String cookieName;
+  static List<Cookie> addCookies(Map<String, dynamic>? cookies) {
     dynamic cookieObj;
     bool isObj;
     String cookieValue;
-    DateTime expires;
+    DateTime? expires;
     String domain;
     String path;
     List<Cookie> allCookies = [];
@@ -69,7 +68,7 @@ class Utils {
         domain = cookieObj.domain ?? '';
         path = cookieObj.path ?? '';
       }
-      Cookie cookie = new Cookie(cookieName, cookieValue);
+      Cookie cookie = new Cookie(key, cookieValue);
       cookie.domain = domain;
       cookie.expires = expires;
       cookie.path = path;
@@ -79,8 +78,8 @@ class Utils {
   }
 }
 
-typedef void ConnectCallBack(int status, dynamic condition, dynamic elem);
-typedef void XmlInputCallback(XmlElement elem);
-typedef void RawInputCallback(String elem);
-typedef void ConnexionCallback(req, Function _callback, String raw);
-typedef void AuthenticateCallback(List<StropheSASLMechanism> matched);
+typedef void ConnectCallBack(int? status, dynamic condition, dynamic elem);
+typedef void XmlInputCallback(XmlElement? elem);
+typedef void RawInputCallback(String? elem);
+typedef void ConnexionCallback(req, Function? _callback, String raw);
+typedef void AuthenticateCallback(List<StropheSASLMechanism?> matched);

@@ -17,10 +17,10 @@ class BookMarkPlugin extends PluginClass {
   ///
   /// @param {function} [success] - Callback after success
   /// @param {function} [error] - Callback after error
-  bool createBookmarksNode([Function success, Function error]) {
+  bool createBookmarksNode([Function? success, Function? error]) {
     // We do this instead of using publish-options because this is not
     // mandatory to implement according to XEP-0060
-    this.connection.sendIQ(
+    this.connection!.sendIQ(
         Strophe.$iq({'type': 'set'})
             .c('pubsub', {'xmlns': Strophe.NS['PUBSUB']})
             .c('create', {'node': Strophe.NS['BOOKMARKS']})
@@ -59,7 +59,7 @@ class BookMarkPlugin extends PluginClass {
   /// the conference room on login.
   /// @param {function} [success] - Callback after success
   /// @param {function} [error] - Callback after error
-  add(String roomJid, String alias, [String nick, bool autojoin = true, Function success, Function error]) {
+  add(String roomJid, String alias, [String? nick, bool autojoin = true, Function? success, Function? error]) {
     StanzaBuilder stanza = Strophe.$iq({'type': 'set'}).c('pubsub', {'xmlns': Strophe.NS['PUBSUB']}).c(
         'publish', {'node': Strophe.NS['BOOKMARKS']}).c('item', {'id': 'current'}).c('storage', {'xmlns': Strophe.NS['BOOKMARKS']});
 
@@ -77,7 +77,7 @@ class BookMarkPlugin extends PluginClass {
         }
       }
 
-      this.connection.sendIQ(stanza.tree(), success, error);
+      this.connection!.sendIQ(stanza.tree(), success, error);
     };
 
     this.get((xml.XmlElement s) {
@@ -85,7 +85,7 @@ class BookMarkPlugin extends PluginClass {
       bool bookmarked = false;
       for (int i = 0; i < confs.length; i++) {
         Map<String, dynamic> conferenceAttr = {'jid': confs[i].getAttribute('jid'), 'autojoin': confs[i].getAttribute('autojoin') ?? false};
-        String roomName = confs[i].getAttribute('name');
+        String? roomName = confs[i].getAttribute('name');
         List<xml.XmlElement> nickname = confs[i].findAllElements('nick').toList();
 
         if (conferenceAttr['jid'] == roomJid) {
@@ -121,7 +121,7 @@ class BookMarkPlugin extends PluginClass {
       if (s.findAllElements('item-not-found').length > 0) {
         _bookmarkGroupChat(true);
       } else {
-        error(s);
+        error!(s);
       }
     });
   }
@@ -130,8 +130,8 @@ class BookMarkPlugin extends PluginClass {
   ///
   /// @param {function} [success] - Callback after success
   /// @param {function} [error] - Callback after error
-  get([Function success, Function error]) {
-    this.connection.sendIQ(
+  get([Function? success, Function? error]) {
+    this.connection!.sendIQ(
         Strophe.$iq({'type': 'get'}).c('pubsub', {'xmlns': Strophe.NS['PUBSUB']}).c('items', {'node': Strophe.NS['BOOKMARKS']}).tree(),
         success,
         error);
@@ -145,7 +145,7 @@ class BookMarkPlugin extends PluginClass {
   /// @param {string} roomJid - The JabberID of the chat roomJid you want to remove
   /// @param {function} [success] - Callback after success
   /// @param {function} [error] - Callback after error
-  delete(String roomJid, [Function success, Function error]) {
+  delete(String roomJid, [Function? success, Function? error]) {
     StanzaBuilder stanza = Strophe.$iq({'type': 'set'}).c('pubsub', {'xmlns': Strophe.NS['PUBSUB']}).c(
         'publish', {'node': Strophe.NS['BOOKMARKS']}).c('item', {'id': 'current'}).c('storage', {'xmlns': Strophe.NS['BOOKMARKS']});
 
@@ -156,7 +156,7 @@ class BookMarkPlugin extends PluginClass {
         if (conferenceAttr['jid'] == roomJid) {
           continue;
         }
-        String roomName = confs[i].getAttribute('name');
+        String? roomName = confs[i].getAttribute('name');
         if (roomName != null && roomName.isNotEmpty) {
           conferenceAttr['name'] = roomName;
         }
@@ -167,9 +167,9 @@ class BookMarkPlugin extends PluginClass {
         }
         stanza.up();
       }
-      this.connection.sendIQ(stanza.tree(), success, error);
+      this.connection!.sendIQ(stanza.tree(), success, error);
     }, (s) {
-      error(s);
+      error!(s);
     });
   }
 
@@ -181,7 +181,7 @@ class BookMarkPlugin extends PluginClass {
   /// @param {string} roomJid - The JabberID of the chat roomJid you want to remove
   /// @param {function} [success] - Callback after success
   /// @param {function} [error] - Callback after error
-  update(String roomJid, String alias, [String nick, bool autojoin = true, Function success, Function error]) {
+  update(String roomJid, String alias, [String? nick, bool autojoin = true, Function? success, Function? error]) {
     StanzaBuilder stanza = Strophe.$iq({'type': 'set'}).c('pubsub', {'xmlns': Strophe.NS['PUBSUB']}).c(
         'publish', {'node': Strophe.NS['BOOKMARKS']}).c('item', {'id': 'current'}).c('storage', {'xmlns': Strophe.NS['BOOKMARKS']});
 
@@ -195,7 +195,7 @@ class BookMarkPlugin extends PluginClass {
         };
         if (conferenceAttr['jid'] == roomJid) {
           conferenceAttr['autojoin'] = autojoin ?? conferenceAttr['autojoin'];
-          String roomName = confs[i].getAttribute('name');
+          String? roomName = confs[i].getAttribute('name');
           if (alias != null && alias.isNotEmpty) roomName = alias;
           conferenceAttr['name'] = roomName ?? '';
         }
@@ -208,9 +208,9 @@ class BookMarkPlugin extends PluginClass {
         }
         stanza.up();
       }
-      this.connection.sendIQ(stanza.tree(), success, error);
+      this.connection!.sendIQ(stanza.tree(), success, error);
     }, (s) {
-      error(s);
+      error!(s);
     });
   }
 }

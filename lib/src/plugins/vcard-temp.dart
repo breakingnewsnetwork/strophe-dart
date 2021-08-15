@@ -5,7 +5,7 @@ import 'package:xml/xml.dart' as xml;
 import 'package:xml/xml.dart';
 
 class VCardTemp extends PluginClass {
-  StanzaBuilder _buildIq(String type, String jid, [xml.XmlElement vCardEl]) {
+  StanzaBuilder _buildIq(String type, String jid, [xml.XmlElement? vCardEl]) {
     StanzaBuilder iq = Strophe.$iq(jid != null ? {'type': type, 'to': jid} : {'type': type});
 
     if (vCardEl != null) {
@@ -28,8 +28,8 @@ class VCardTemp extends PluginClass {
          *     If no jid is given, this function retrieves the current user's vcard.
          * */
   get(Function handlerCb, String jid, Function errorCb) {
-    var iq = _buildIq("get", jid ?? Strophe.getBareJidFromJid(this.connection.jid));
-    return this.connection.sendIQ(iq.tree(), handlerCb, errorCb);
+    var iq = _buildIq("get", jid ?? Strophe.getBareJidFromJid(this.connection!.jid)!);
+    return this.connection!.sendIQ(iq.tree(), handlerCb, errorCb);
   }
 
   /* Function
@@ -37,8 +37,8 @@ class VCardTemp extends PluginClass {
          */
   set(Function handlerCb, VCardEl vCardEl, String jid, Function errorCb) {
     if (vCardEl == null) return null;
-    StanzaBuilder iq = _buildIq("set", jid ?? Strophe.getBareJidFromJid(this.connection.jid), vCardEl.tree());
-    return this.connection.sendIQ(iq.tree(), handlerCb, errorCb);
+    StanzaBuilder iq = _buildIq("set", jid ?? Strophe.getBareJidFromJid(this.connection!.jid)!, vCardEl.tree());
+    return this.connection!.sendIQ(iq.tree(), handlerCb, errorCb);
   }
 }
 
@@ -69,21 +69,21 @@ class VCardEl {
   }
 
   VCardEl(
-      {String fn,
-      String family,
-      String given,
-      String middle,
-      String nickName,
-      String url,
-      String bday,
-      String orgName,
-      String orgUnit,
-      String title,
-      String role,
-      String userId,
-      String jabberdId,
-      String desc,
-      String email}) {
+      {String? fn,
+      String? family,
+      String? given,
+      String? middle,
+      String? nickName,
+      String? url,
+      String? bday,
+      String? orgName,
+      String? orgUnit,
+      String? title,
+      String? role,
+      String? userId,
+      String? jabberdId,
+      String? desc,
+      String? email}) {
     FN = fn ?? '';
     FAMILY = family ?? '';
     GIVEN = given ?? '';
@@ -101,7 +101,7 @@ class VCardEl {
     DESC = desc ?? '';
   }
 
-  XmlElement tree() {
+  XmlElement? tree() {
     StanzaBuilder build = Strophe.$build("vCard", {'xmlns': Strophe.NS['VCARD']})
         .c('FN')
         .t(FN)
@@ -145,7 +145,7 @@ class VCardEl {
         .up();
     addresses.forEach((VCardElAddr addr) {
       if (addr != null) {
-        addr.tree().children.forEach((XmlNode elem) {
+        addr.tree()!.children.forEach((XmlNode elem) {
           build.cnode(elem).up();
         });
       }
@@ -170,16 +170,16 @@ class VCardElAddr {
   String typeAddr;
 
   VCardElAddr(this.typeAddr,
-      {String voiceNum,
-      String faxNum,
-      String msgNum,
-      String work,
-      String extAddr,
-      String street,
-      String locality,
-      String region,
-      String pCode,
-      String country}) {
+      {String? voiceNum,
+      String? faxNum,
+      String? msgNum,
+      String? work,
+      String? extAddr,
+      String? street,
+      String? locality,
+      String? region,
+      String? pCode,
+      String? country}) {
     VOICE_NUMBER = voiceNum ?? '';
     FAX_NUMBER = faxNum ?? '';
     MSG_NUMBER = msgNum ?? '';
@@ -192,7 +192,7 @@ class VCardElAddr {
     CTRY = country ?? '';
   }
 
-  XmlElement tree() {
+  XmlElement? tree() {
     return Strophe.$build('addr', {})
         .c('TEL')
         .c(typeAddr != null ? typeAddr.toUpperCase() : 'WORK')

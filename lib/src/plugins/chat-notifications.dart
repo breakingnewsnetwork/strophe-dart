@@ -11,7 +11,7 @@ class ChatStatesNotificationPlugin extends PluginClass {
     this.connection = conn;
     statusChanged = (int status, [condition, el]) {
       if (status == Strophe.Status['CONNECTED'] || status == Strophe.Status['ATTACHED']) {
-        this.connection.addHandler(this._notificationReceived, Strophe.NS['CHATSTATES'], "message");
+        this.connection!.addHandler(this._notificationReceived, Strophe.NS['CHATSTATES'], "message");
       }
     };
     Strophe.addNamespace('CHATSTATES', 'http://jabber.org/protocol/chatstates');
@@ -22,7 +22,7 @@ class ChatStatesNotificationPlugin extends PluginClass {
   }
 
   _notificationReceived(element) {
-    xml.XmlElement message;
+    xml.XmlElement? message;
     if (element is String) {
       message = xml.XmlDocument.parse(element).rootElement;
     } else if (element is xml.XmlElement)
@@ -86,6 +86,6 @@ class ChatStatesNotificationPlugin extends PluginClass {
   _sendNotification(String jid, String type, String notification) {
     if (type == null || type.isEmpty) type = 'chat';
 
-    this.connection.send(Strophe.$msg({'to': jid, 'type': type}).c(notification, {'xmlns': Strophe.NS['CHATSTATES']}));
+    this.connection!.send(Strophe.$msg({'to': jid, 'type': type}).c(notification, {'xmlns': Strophe.NS['CHATSTATES']}));
   }
 }

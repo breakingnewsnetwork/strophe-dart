@@ -6,19 +6,19 @@ import 'package:strophe/src/enums.dart';
 import 'package:xml/xml.dart' as xml;
 
 class StropheWebSocket extends ServiceType {
-  StropheConnection _conn;
+  late StropheConnection _conn;
 
-  String strip;
+  String? strip;
 
-  WebSocket socket;
+  WebSocket? socket;
 
-  StreamSubscription _socketListen;
+  StreamSubscription? _socketListen;
 
-  StreamSubscription get socketListen {
+  StreamSubscription? get socketListen {
     return _socketListen;
   }
 
-  set socketListen(StreamSubscription listen) {
+  set socketListen(StreamSubscription? listen) {
     if (listen != null) _socketListen = listen;
   }
 
@@ -68,9 +68,9 @@ class StropheWebSocket extends ServiceType {
   /// connectstatus - The ConnectStatus that will be set on error.
   /// Returns:
   /// true if there was a streamerror, false otherwise.
-  bool _checkStreamError(xml.XmlNode bodyWrapNode, int connectstatus) {
+  bool _checkStreamError(xml.XmlNode bodyWrapNode, int? connectstatus) {
     Iterable<xml.XmlElement> errors;
-    xml.XmlElement bodyWrap;
+    late xml.XmlElement bodyWrap;
     if (bodyWrapNode is xml.XmlDocument)
       bodyWrap = bodyWrapNode.rootElement;
     else if (bodyWrapNode is xml.XmlElement) bodyWrap = bodyWrapNode;
@@ -104,13 +104,13 @@ class StropheWebSocket extends ServiceType {
 
     String errorString = "WebSocket stream error: ";
 
-    if (condition != null) {
+    if (condition.isNotEmpty) {
       errorString += condition;
     } else {
       errorString += "unknown";
     }
 
-    if (text != null) {
+    if (text.isNotEmpty) {
       errorString += " - " + text;
     }
 
@@ -140,7 +140,7 @@ class StropheWebSocket extends ServiceType {
   ///
   /// Creates a WebSocket for a connection and assigns Callbacks to it.
   /// Does nothing if there already is a WebSocket.
-  connect([int wait, int hold, String route]) {
+  connect([int? wait, int? hold, String? route]) {
     this._connect();
   }
 
@@ -151,7 +151,7 @@ class StropheWebSocket extends ServiceType {
       // Create the new WebSocket
       WebSocket.connect(this._conn.service, protocols: ['xmpp']).then((WebSocket socket) {
         this.socket = socket;
-        this.socketListen = this.socket.listen(this._connectCbWrapper, onError: this._onError, onDone: this._onClose);
+        this.socketListen = this.socket!.listen(this._connectCbWrapper, onError: this._onError, onDone: this._onClose);
         this._onOpen();
       }).catchError((e) {
         this._conn.connexionError("impossible de joindre le serveur XMPP : $e");
@@ -188,21 +188,21 @@ class StropheWebSocket extends ServiceType {
     String error = "";
 
     // Check for errors in the <open /> tag
-    String ns = message.rootElement.getAttribute("xmlns");
+    String? ns = message.rootElement.getAttribute("xmlns");
     if (ns == null) {
       error = "Missing xmlns in <open />";
     } else if (ns != Strophe.NS['FRAMING']) {
       error = "Wrong xmlns in <open />: " + ns;
     }
 
-    String ver = message.rootElement.getAttribute("version");
+    String? ver = message.rootElement.getAttribute("version");
     if (ver == null) {
       error = "Missing version in <open />";
     } else if (ver != "1.0") {
       error = "Wrong version in <open />: " + ver;
     }
 
-    if (error != null && error.isNotEmpty) {
+    if (error.isNotEmpty) {
       this._conn.changeConnectStatus(Strophe.Status['CONNFAIL'], error);
       this._conn.doDisconnect();
       return false;
@@ -217,17 +217,17 @@ class StropheWebSocket extends ServiceType {
   /// message handler. On receiving a stream error the connection is terminated.
   void _connectCbWrapper(message) {
     try {
-      message = message as String;
+      message = message as String?;
     } catch (e) {
       message = message.toString();
     }
     if (message == null || message.isEmpty) return;
     if (message.trim().indexOf("<open ") == 0 || message.trim().indexOf("<?xml") == 0) {
       // Strip the XML Declaration, if there is one
-      String data = message.replaceAll(new RegExp(r"^(<\?.*?\?>\s*)*"), "");
+      String? data = message.replaceAll(new RegExp(r"^(<\?.*?\?>\s*)*"), "");
       if (data == '') return;
 
-      xml.XmlDocument streamStart = xml.XmlDocument.parse(data);
+      xml.XmlDocument streamStart = xml.XmlDocument.parse(data!);
       this._conn.xmlInput(streamStart.rootElement);
       this._conn.rawInput(message);
 
@@ -240,10 +240,10 @@ class StropheWebSocket extends ServiceType {
       // <close xmlns="urn:ietf:params:xml:ns:xmpp-framing />
       this._conn.rawInput(message);
       this._conn.xmlInput(xml.XmlDocument.parse(message).rootElement);
-      String seeUri = xml.XmlDocument.parse(message).rootElement.getAttribute("see-other-uri");
+      String? seeUri = xml.XmlDocument.parse(message).rootElement.getAttribute("see-other-uri");
       if (seeUri != null && seeUri.isNotEmpty) {
         this._conn.changeConnectStatus(Strophe.Status['REDIRECT'], "Received see-other-uri, resetting connection");
-        this._conn.reset();
+        this._conn.reset!();
         this._conn.service = seeUri;
         this._connect();
       } else {
@@ -253,8 +253,8 @@ class StropheWebSocket extends ServiceType {
     } else {
       String string = this._streamWrap(message);
       xml.XmlDocument elem = xml.XmlDocument.parse(string);
-      this.socketListen.onData(this._onMessage);
-      this._conn.connectCb(elem, null, message);
+      this.socketListen!.onData(this._onMessage);
+      this._conn.connectCb!(elem, null, message);
     }
   }
 
@@ -265,18 +265,18 @@ class StropheWebSocket extends ServiceType {
   ///
   /// Parameters:
   /// (Request) pres - This stanza will be sent before disconnecting.
-  void _disconnect([StanzaBuilder pres]) {
-    if (this.socket != null && this.socket.readyState != WebSocket.closed) {
+  void _disconnect([StanzaBuilder? pres]) {
+    if (this.socket != null && this.socket!.readyState != WebSocket.closed) {
       if (pres != null) {
         this._conn.send(pres.tree());
       }
 
       StanzaBuilder close = Strophe.$build("close", {"xmlns": Strophe.NS['FRAMING']});
       this._conn.xmlOutput(close.tree());
-      String closeString = Strophe.serialize(close.tree());
+      String? closeString = Strophe.serialize(close.tree());
       this._conn.rawOutput(closeString);
       try {
-        if (this.socket != null) this.socket.add(closeString);
+        if (this.socket != null) this.socket!.add(closeString);
       } catch (e) {
         Strophe.info("Couldn't send <close /> tag.");
       }
@@ -310,10 +310,10 @@ class StropheWebSocket extends ServiceType {
   void _closeSocket() {
     if (this.socket != null) {
       try {
-        this.socket.handleError(() {});
-        this.socketListen.cancel();
+        this.socket!.handleError(() {});
+        this.socketListen!.cancel();
         this.socketListen = null;
-        this.socket.close();
+        this.socket!.close();
         this.socket = null;
       } catch (e) {}
     }
@@ -346,7 +346,8 @@ class StropheWebSocket extends ServiceType {
       // dispatch a CONNFAIL status update to be consistent with the
       // behavior on other browsers.
       Strophe.error("Websocket closed unexcectedly");
-      this._conn.changeConnectStatus(Strophe.Status['CONNFAIL'], "The WebSocket connection could not be established or was disconnected.");
+      this._conn.changeConnectStatus(
+          Strophe.Status['CONNFAIL'], "The WebSocket connection could not be established or was disconnected.");
       this._conn.doDisconnect();
     } else {
       Strophe.info("Websocket closed");
@@ -378,7 +379,8 @@ class StropheWebSocket extends ServiceType {
   /// (Object) error - The websocket error.
   void _onError(Object error) {
     Strophe.error("Websocket error " + error.toString());
-    this._conn.changeConnectStatus(Strophe.Status['CONNFAIL'], "The WebSocket connection could not be established or was disconnected.");
+    this._conn.changeConnectStatus(
+        Strophe.Status['CONNFAIL'], "The WebSocket connection could not be established or was disconnected.");
     this._disconnect();
   }
 
@@ -391,12 +393,12 @@ class StropheWebSocket extends ServiceType {
   }
 
   void _onIdle() {
-    List data = this._conn.data;
+    List data = this._conn.data!;
     if (data.length > 0 && !this._conn.paused) {
       for (int i = 0; i < data.length; i++) {
         if (data[i] != null) {
-          xml.XmlElement stanza;
-          String rawStanza;
+          xml.XmlElement? stanza;
+          String? rawStanza;
           if (data[i] == "restart") {
             stanza = this._buildStream().tree();
           } else {
@@ -405,7 +407,7 @@ class StropheWebSocket extends ServiceType {
           rawStanza = Strophe.serialize(stanza);
           this._conn.xmlOutput(stanza);
           this._conn.rawOutput(rawStanza);
-          if (this.socket != null) this.socket.add(rawStanza);
+          if (this.socket != null) this.socket!.add(rawStanza);
         }
       }
       this._conn.data = [];
@@ -435,19 +437,19 @@ class StropheWebSocket extends ServiceType {
   /// Parameters:
   /// (string) message - The websocket message.
   void _onMessage(dynamic msg) {
-    String message = msg as String;
+    String? message = msg as String?;
     xml.XmlDocument elem;
     String data;
     // check for closing stream
     String close = '<close xmlns="urn:ietf:params:xml:ns:xmpp-framing" />';
     if (message == close) {
       this._conn.rawInput(close);
-      this._conn.xmlInput(xml.XmlDocument.parse(message).rootElement);
+      this._conn.xmlInput(xml.XmlDocument.parse(message!).rootElement);
       if (!this._conn.disconnecting) {
         this._conn.doDisconnect();
       }
       return;
-    } else if (message.trim().indexOf("<open ") == 0) {
+    } else if (message!.trim().indexOf("<open ") == 0) {
       // This handles stream restarts
       elem = xml.XmlDocument.parse(message);
       if (!this._handleStreamStart(elem)) {
@@ -462,9 +464,11 @@ class StropheWebSocket extends ServiceType {
     }
 
     //handle unavailable presence stanza before disconnecting
-    xml.XmlElement firstChild = elem.firstChild;
-    if (this._conn.disconnecting && firstChild.name.qualified == "presence" && firstChild.getAttribute("type") == "unavailable") {
-      this._conn.xmlInput(elem.root);
+    xml.XmlElement? firstChild = elem.firstChild as xml.XmlElement?;
+    if (this._conn.disconnecting &&
+        firstChild!.name.qualified == "presence" &&
+        firstChild.getAttribute("type") == "unavailable") {
+      this._conn.xmlInput(elem.root as xml.XmlElement?);
       this._conn.rawInput(Strophe.serialize(elem));
       // if we are already disconnecting we will ignore the unavailable stanza and
       // wait for the </stream:stream> tag before we close the connection
@@ -481,9 +485,9 @@ class StropheWebSocket extends ServiceType {
     StanzaBuilder start = this._buildStream();
     this._conn.xmlOutput(start.tree());
 
-    String startString = Strophe.serialize(start.tree());
+    String? startString = Strophe.serialize(start.tree());
     this._conn.rawOutput(startString);
-    if (this.socket != null) this.socket.add(startString);
+    if (this.socket != null) this.socket!.add(startString);
   }
 
   /// PrivateFunction: _reqToData
@@ -496,11 +500,11 @@ class StropheWebSocket extends ServiceType {
   ///
   /// Returns:
   /// The stanza that was passed.
-  xml.XmlElement reqToData(stanza) {
+  xml.XmlElement? reqToData(stanza) {
     return this._reqToData(stanza);
   }
 
-  xml.XmlElement _reqToData(stanza) {
+  xml.XmlElement? _reqToData(stanza) {
     if (stanza == null) return null;
     //if (stanza is StropheRequest) return stanza.getResponse();
     if (stanza is xml.XmlDocument) return stanza.rootElement;
@@ -527,9 +531,9 @@ class StropheWebSocket extends ServiceType {
   }
 
   _sendRestart() {
-    this._conn.idleTimeout.cancel();
+    this._conn.idleTimeout!.cancel();
     this._conn.onIdle();
   }
 
-  StropheConnection get conn => null;
+  StropheConnection? get conn => null;
 }

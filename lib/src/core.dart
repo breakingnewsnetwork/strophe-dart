@@ -126,7 +126,7 @@ class Strophe {
   ///    (String) elemName - The child element tag name filter.
   ///    (Function) func - The function to apply to each child.  This
   ///      function should take a single argument, a DOM element.
-  static void forEachChild(elem, String elemName, Function func) {
+  static void forEachChild(elem, String? elemName, Function func) {
     if (elem == null) return;
     var childNode;
     for (int i = 0; i < elem.children.length; i++) {
@@ -156,14 +156,14 @@ class Strophe {
   ///  Returns:
   ///    true if the element's tag name matches _el_, and false
   ///    otherwise.
-  static bool isTagEqual(xml.XmlElement el, String name) {
+  static bool isTagEqual(xml.XmlElement el, String? name) {
     return el.name.qualified == name;
   }
 
   /// PrivateVariable: _xmlGenerator
   ///  _Private_ variable that caches a DOM document to
   ///  generate elements.
-  static xml.XmlBuilder _xmlGenerator;
+  static xml.XmlBuilder? _xmlGenerator;
 
   /// PrivateFunction: _makeGenerator
   ///  _Private_ function that creates a dummy XML DOM document to serve as
@@ -179,7 +179,7 @@ class Strophe {
   ///
   ///  Returns:
   ///    The currently used DOM document.
-  static xml.XmlBuilder xmlGenerator() {
+  static xml.XmlBuilder? xmlGenerator() {
     //if (Strophe._xmlGenerator == null) {
     Strophe._xmlGenerator = Strophe._makeGenerator();
     //}
@@ -203,8 +203,8 @@ class Strophe {
   ///
   ///  Returns:
   ///    A new XML DOM element.
-  static xml.XmlNode xmlElement(String name, {dynamic attrs, String text}) {
-    if (name == null || name.isEmpty || name.trim().length == 0) {
+  static xml.XmlNode? xmlElement(String name, {dynamic attrs, String? text}) {
+    if (name.trim().isEmpty) {
       return null;
     }
     if (attrs != null && (attrs is! List<List<String>>) && (attrs is! Map<String, dynamic>)) {
@@ -215,7 +215,7 @@ class Strophe {
       if (attrs is List<List<String>>) {
         for (int i = 0; i < attrs.length; i++) {
           List<String> attr = attrs[i];
-          if (attr.length == 2 && attr[1] != null && attr.isNotEmpty) {
+          if (attr.length == 2 && attr.isNotEmpty) {
             attributes[attr[0]] = attr[1].toString();
           }
         }
@@ -223,15 +223,15 @@ class Strophe {
         List<String> keys = attrs.keys.toList();
         for (int i = 0, len = keys.length; i < len; i++) {
           String key = keys[i];
-          if (key != null && key.isNotEmpty && attrs[key] != null) {
+          if (key.isNotEmpty && attrs[key] != null) {
             attributes[key] = attrs[key].toString();
           }
         }
       }
     }
-    xml.XmlBuilder builder = Strophe.xmlGenerator();
+    xml.XmlBuilder builder = Strophe.xmlGenerator()!;
     builder.element(name, attributes: attributes, nest: text);
-    return builder.build();
+    return builder.buildDocument();
   }
 
 /*  Function: xmlescape
@@ -280,10 +280,10 @@ class Strophe {
   ///
   ///  Returns:
   ///    A new XML DOM text node.
-  static xml.XmlNode xmlTextNode(String text) {
-    xml.XmlBuilder builder = Strophe.xmlGenerator();
+  static xml.XmlNode xmlTextNode(String? text) {
+    xml.XmlBuilder builder = Strophe.xmlGenerator()!;
     builder.element('strophe', nest: text);
-    return builder.build();
+    return builder.buildDocument();
   }
 
   /// Function: xmlHtmlNode
@@ -294,8 +294,8 @@ class Strophe {
   ///
   ///  Returns:
   ///    A new XML DOM text node.
-  static xml.XmlNode xmlHtmlNode(String html) {
-    xml.XmlNode parsed;
+  static xml.XmlNode? xmlHtmlNode(String html) {
+    xml.XmlNode? parsed;
     try {
       parsed = xml.XmlDocument.parse(html);
     } catch (e) {
@@ -313,9 +313,9 @@ class Strophe {
   ///  Returns:
   ///    A String with the concatenated text of all text element children.
   static String getText(xml.XmlNode elem) {
-    if (elem == null) {
+    /*if (elem == null) {
       return null;
-    }
+    }*/
     String str = "";
     if (elem.children.length == 0 && elem.nodeType == xml.XmlNodeType.TEXT) {
       str += elem.toString();
@@ -347,7 +347,7 @@ class Strophe {
     } else if (elem.nodeType == xml.XmlNodeType.TEXT) {
       el = elem;
     } else if (elem.nodeType == xml.XmlNodeType.DOCUMENT) {
-      el = elem.document.rootElement;
+      el = elem.document!.rootElement;
     }
     return el;
   }
@@ -363,9 +363,9 @@ class Strophe {
   ///
   ///  Returns:
   ///    A new, copied DOM element tree.
-  static xml.XmlNode createHtml(xml.XmlNode elem) {
-    xml.XmlNode el;
-    String tag;
+  static xml.XmlNode? createHtml(xml.XmlNode elem) {
+    xml.XmlNode? el;
+    String? tag;
     if (elem.nodeType == xml.XmlNodeType.ELEMENT) {
       // XHTML tags must be lower case.
       //tag = elem.
@@ -440,7 +440,7 @@ class Strophe {
   ///
   ///  Returns:
   ///    A String containing the node.
-  static String getNodeFromJid(String jid) {
+  static String? getNodeFromJid(String jid) {
     if (jid.indexOf("@") < 0) {
       return null;
     }
@@ -455,8 +455,8 @@ class Strophe {
   ///
   ///  Returns:
   ///    A String containing the domain.
-  static String getDomainFromJid(String jid) {
-    String bare = Strophe.getBareJidFromJid(jid);
+  static String getDomainFromJid(String? jid) {
+    String bare = Strophe.getBareJidFromJid(jid)!;
     if (bare.indexOf("@") < 0) {
       return bare;
     } else {
@@ -474,7 +474,7 @@ class Strophe {
   ///
   ///  Returns:
   ///    A String containing the resource.
-  static String getResourceFromJid(String jid) {
+  static String? getResourceFromJid(String jid) {
     List<String> s = jid.split("/");
     if (s.length < 2) {
       return null;
@@ -491,17 +491,19 @@ class Strophe {
   ///
   ///  Returns:
   ///    A String containing the bare JID.
-  static String getBareJidFromJid(String jid) {
+  static String? getBareJidFromJid(String? jid) {
     return jid != null && jid.isNotEmpty ? jid.split("/")[0] : null;
   }
 
   /// PrivateFunction: _handleError
   ///  _Private_ function that properly logs an error to the console
-  static handleError(Error e) {
-    if (e.stackTrace != null) {
-      Strophe.fatal(e.stackTrace.toString());
-    }
-    if (e.toString() != null) {
+  static handleError(e) {
+    if(e is Error) {
+      if (e.stackTrace != null) {
+        Strophe.fatal(e.stackTrace.toString());
+      }
+      Strophe.fatal("error: " + e.hashCode.toString() + " - " + e.runtimeType.toString() + ": " + e.toString());
+    } else {
       Strophe.fatal("error: " + e.hashCode.toString() + " - " + e.runtimeType.toString() + ": " + e.toString());
     }
   }
@@ -534,7 +536,7 @@ class Strophe {
   ///    (Integer) level - The log level of the log message.  This will
   ///      be one of the values in Strophe.LogLevel.
   ///    (String) msg - The log message.
-  static log(int level, String msg) {
+  static log(int? level, String msg) {
     if (level != Strophe.LogLevel['FATAL']) {
       print(msg);
     }
@@ -593,7 +595,7 @@ class Strophe {
   ///
   ///  Returns:
   ///    The serialized element tree as a String.
-  static String serialize(xml.XmlNode elem) {
+  static String? serialize(xml.XmlNode? elem) {
     if (elem == null) {
       return null;
     }
@@ -666,7 +668,7 @@ class Strophe {
   ///
   ///  Returns:
   ///    A new Strophe.Builder.
-  static StanzaBuilder Builder(String name, {Map<String, dynamic> attrs}) {
+  static StanzaBuilder Builder(String name, {Map<String?, dynamic>? attrs}) {
     return StanzaBuilder(name, attrs);
   }
 
@@ -698,7 +700,7 @@ class Strophe {
   ///
   ///  Returns:
   ///    A new Strophe.Handler object.
-  static StanzaHandler Handler(Function handler, String ns, String name, [type, String id, String from, Map options]) {
+  static StanzaHandler Handler(Function? handler, String? ns, String? name, [type, String? id, String? from, Map? options]) {
     if (options != null) {
       options.putIfAbsent('matchBareFromJid', () => false);
       options.putIfAbsent('ignoreNamespaceFragment', () => false);
@@ -755,15 +757,15 @@ class Strophe {
     return Strophe.Builder(name, attrs: attrs);
   }
 
-  static StanzaBuilder $msg([Map<String, dynamic> attrs]) {
+  static StanzaBuilder $msg([Map<String, dynamic>? attrs]) {
     return Strophe.Builder("message", attrs: attrs);
   }
 
-  static StanzaBuilder $iq([Map<String, dynamic> attrs]) {
+  static StanzaBuilder $iq([Map<String?, dynamic>? attrs]) {
     return Strophe.Builder("iq", attrs: attrs);
   }
 
-  static StanzaBuilder $pres([Map<String, dynamic> attrs]) {
+  static StanzaBuilder $pres([Map<String, dynamic>? attrs]) {
     return Strophe.Builder("presence", attrs: attrs);
   }
 
@@ -908,7 +910,7 @@ class Strophe {
   ///
   ///  Returns:
   ///    A new Strophe.Connection object.
-  static StropheConnection Connection(String service, [Map options]) {
+  static StropheConnection Connection(String service, [Map? options]) {
     StropheConnection stropheConnection = StropheConnection(service, options);
     return stropheConnection;
   }

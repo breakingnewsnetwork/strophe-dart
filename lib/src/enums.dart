@@ -71,9 +71,9 @@ const Map<String, int> ELEMENTTYPE = const {'NORMAL': 1, 'TEXT': 3, 'CDATA': 4, 
 
 class StanzaBuilder {
   List<int> node = [];
-  xml.XmlNode nodeTree;
+  xml.XmlNode? nodeTree;
 
-  StanzaBuilder(String name, [Map<String, dynamic> attrs]) {
+  StanzaBuilder(String name, [Map<String?, dynamic>? attrs]) {
     // Set correct namespace for jabber:client elements
     if (name == "presence" || name == "message" || name == "iq") {
       if (attrs != null && attrs['xmlns'] == null) {
@@ -98,16 +98,16 @@ class StanzaBuilder {
   ///
   /// Returns:
   /// The DOM tree as a element object.
-  xml.XmlElement tree() {
+  xml.XmlElement? tree() {
     if (this.nodeTree is xml.XmlDocument) {
       xml.XmlDocument doc = this.nodeTree as xml.XmlDocument;
       return doc.rootElement;
     }
-    return this.nodeTree;
+    return this.nodeTree as xml.XmlElement?;
   }
 
   xml.XmlElement get currentNode {
-    xml.XmlNode _currentNode = this.nodeTree.children[0];
+    xml.XmlNode _currentNode = this.nodeTree!.children[0];
     for (int i = 1; i < this.node.length; i++) {
       _currentNode = _currentNode.children[this.node[i]];
     }
@@ -125,7 +125,7 @@ class StanzaBuilder {
   ///    The serialized DOM tree in a String.
   ///
   String toString() {
-    return Strophe.serialize(this.nodeTree);
+    return Strophe.serialize(this.nodeTree)!;
   }
 
   /// Function: up
@@ -153,7 +153,7 @@ class StanzaBuilder {
   /// The Stophe.Builder object.
   StanzaBuilder root() {
     this.node = [];
-    this.nodeTree = this.nodeTree.root;
+    this.nodeTree = this.nodeTree!.root;
     return this;
   }
 
@@ -168,14 +168,14 @@ class StanzaBuilder {
   ///
   /// Returns:
   /// The Strophe.Builder object.
-  StanzaBuilder attrs(Map<String, dynamic> moreattrs) {
-    moreattrs.forEach((String key, dynamic value) {
+  StanzaBuilder attrs(Map<String?, dynamic> moreattrs) {
+    moreattrs.forEach((String? key, dynamic value) {
       if (value == null || value.isEmpty) {
-        this.nodeTree.firstChild.attributes.removeWhere((xml.XmlAttribute attr) {
+        this.nodeTree!.firstChild!.attributes.removeWhere((xml.XmlAttribute attr) {
           return attr.name.qualified == key;
         });
       } else {
-        this.nodeTree.firstChild.attributes.add(new xml.XmlAttribute(new xml.XmlName.fromString(key), value));
+        this.nodeTree!.firstChild!.attributes.add(new xml.XmlAttribute(new xml.XmlName.fromString(key!), value));
       }
     });
     return this;
@@ -196,11 +196,11 @@ class StanzaBuilder {
   ///
   /// Returns:
   /// The Strophe.Builder object.
-  StanzaBuilder c(String name, [Map<String, dynamic> attrs, dynamic text]) {
-    xml.XmlNode child = Strophe.xmlElement(name, attrs: attrs, text: text);
-    xml.XmlElement xmlElement = child is xml.XmlDocument ? child.rootElement : (child as xml.XmlElement);
+  StanzaBuilder c(String name, [Map<String, dynamic>? attrs, dynamic text]) {
+    xml.XmlNode? child = Strophe.xmlElement(name, attrs: attrs, text: text);
+    xml.XmlElement xmlElement = child is xml.XmlDocument ? child.rootElement : (child as xml.XmlElement?)!;
 
-    xml.XmlNode currentNode = this.nodeTree.children[0];
+    xml.XmlNode currentNode = this.nodeTree!.children[0];
     for (int i = 1; i < this.node.length; i++) {
       currentNode = currentNode.children[this.node[i]];
     }
@@ -224,7 +224,7 @@ class StanzaBuilder {
   /// The Strophe.Builder object.
   StanzaBuilder cnode(xml.XmlNode elem) {
     xml.XmlNode newElem = Strophe.copyElement(elem);
-    xml.XmlNode currentNode = this.nodeTree.children[0];
+    xml.XmlNode currentNode = this.nodeTree!.children[0];
     for (int i = 1; i < this.node.length; i++) {
       currentNode = currentNode.children[this.node[i]];
     }
@@ -244,8 +244,8 @@ class StanzaBuilder {
   ///
   /// Returns:
   /// The Strophe.Builder object.
-  StanzaBuilder t(String text) {
-    xml.XmlNode currentNode = this.nodeTree.children[0];
+  StanzaBuilder t(String? text) {
+    xml.XmlNode currentNode = this.nodeTree!.children[0];
     for (int i = 1; i < this.node.length; i++) {
       currentNode = currentNode.children[this.node[i]];
     }
@@ -264,14 +264,14 @@ class StanzaBuilder {
   /// Returns:
   /// The Strophe.Builder object.
   StanzaBuilder h(String html) {
-    xml.XmlNode fragment = Strophe.xmlElement('body');
+    xml.XmlNode fragment = Strophe.xmlElement('body')!;
 
     // force the browser to try and fix any invalid HTML tags
     fragment.children.add(Strophe.xmlTextNode(html));
 
     // copy cleaned html into an xml dom
-    xml.XmlNode xhtml = Strophe.createHtml(fragment);
-    xml.XmlNode currentNode = this.nodeTree.children[0];
+    xml.XmlNode xhtml = Strophe.createHtml(fragment)!;
+    xml.XmlNode currentNode = this.nodeTree!.children[0];
     for (int i = 1; i < this.node.length; i++) {
       currentNode = currentNode.children[this.node[i]];
     }
@@ -281,19 +281,19 @@ class StanzaBuilder {
 }
 
 class StanzaHandler {
-  String from;
+  String? from;
 
   // whether the handler is a user handler or a system handler
-  bool user;
-  Function handler;
-  String ns;
-  String name;
-  List<String> type; // String or List
-  String id;
+  late bool user;
+  Function? handler;
+  String? ns;
+  String? name;
+  List<String?>? type; // String or List
+  String? id;
   Map options;
 
   StanzaHandler(this.handler, this.ns, this.name, ptype, this.id, this.options) {
-    this.type = ptype is List ? ptype : [ptype];
+    this.type = ptype is List ? ptype as List<String?>? : [ptype];
   }
 
   /// PrivateFunction: getNamespace
@@ -310,7 +310,7 @@ class StanzaHandler {
   String getNamespace(xml.XmlNode node) {
     xml.XmlElement elem = node is xml.XmlDocument ? node.rootElement : node as xml.XmlElement;
     String elNamespace = elem.getAttribute("xmlns") ?? '';
-    if (elNamespace != null && elNamespace.isNotEmpty && this.options['ignoreNamespaceFragment']) {
+    if (elNamespace.isNotEmpty && this.options['ignoreNamespaceFragment']) {
       elNamespace = elNamespace.split('#')[0];
     }
     return elNamespace;
@@ -326,7 +326,7 @@ class StanzaHandler {
   /// true if the stanza matches and false otherwise.
   bool namespaceMatch(xml.XmlNode elem) {
     bool nsMatch = false;
-    if (this.ns == null || this.ns.isEmpty) {
+    if (this.ns == null || this.ns!.isEmpty) {
       return true;
     } else {
       Strophe.forEachChild(elem, null, (child) {
@@ -349,25 +349,25 @@ class StanzaHandler {
   /// true if the stanza matches and false otherwise.
   bool isMatch(xml.XmlNode node) {
     xml.XmlElement elem = node is xml.XmlDocument ? node.rootElement : node as xml.XmlElement;
-    String from = elem.getAttribute("from");
+    String? from = elem.getAttribute("from");
     if (this.options['matchBareFromJid']) {
       from = Strophe.getBareJidFromJid(from);
     }
     bool withId = false;
 
-    String id = elem.getAttribute("id");
+    String? id = elem.getAttribute("id");
     if (this.options['endsWithId'] == true) {
-      withId = (id ?? '').endsWith(this.id);
+      withId = (id ?? '').endsWith(this.id!);
     }
     if (this.options['startsWithId'] == true) {
-      withId = (id ?? '').startsWith(this.id);
+      withId = (id ?? '').startsWith(this.id!);
     }
 
-    String elemType = elem.getAttribute("type");
-    bool statement = this.type.indexOf(elemType) != -1;
+    String? elemType = elem.getAttribute("type");
+    bool statement = this.type!.indexOf(elemType) != -1;
     if (this.namespaceMatch(elem) &&
         (this.name == null || Strophe.isTagEqual(elem, this.name)) &&
-        (this.type == null || this.type.contains(null) || statement) &&
+        (this.type == null || this.type!.contains(null) || statement) &&
         (this.id == null || id == this.id || withId) &&
         (this.from == null || from == this.from)) {
       return true;
@@ -389,11 +389,11 @@ class StanzaHandler {
     bool result = false;
     if (this.handler == null) return false;
     try {
-      var handResult = this.handler(elem);
+      var handResult = this.handler!(elem);
       if (handResult == null || handResult == true) result = true;
     } catch (e) {
       Strophe.handleError(e);
-      throw e;
+      rethrow;
     }
     return result;
   }
@@ -405,15 +405,15 @@ class StanzaHandler {
   ///    A String.
   ///
   String toString() {
-    return "{Handler: " + this.handler.toString() + "(" + this.name + "," + this.id + "," + this.ns + ")}";
+    return "{Handler: " + this.handler.toString() + "(" + this.name! + "," + this.id! + "," + this.ns! + ")}";
   }
 }
 
 class StanzaTimedHandler {
   bool user = true;
-  int lastCalled;
-  int period;
-  Function handler;
+  late int lastCalled;
+  late int period;
+  late Function handler;
 
   StanzaTimedHandler(int period, Function handler) {
     this.period = period;
@@ -428,7 +428,7 @@ class StanzaTimedHandler {
   ///    true if the Strophe.TimedHandler should be called again, and false
   ///      otherwise.
   ///
-  bool run() {
+  bool? run() {
     this.lastCalled = new DateTime.now().millisecondsSinceEpoch;
     return this.handler();
   }
@@ -452,104 +452,104 @@ class StanzaTimedHandler {
 }
 
 class StropheConnection {
-  String service;
-  String pass;
-  String authcid;
-  String authzid;
-  String servtype;
-  Map<String, dynamic> options;
+  late String service;
+  String? pass;
+  String? authcid;
+  String? authzid;
+  late String servtype;
+  late Map<String, dynamic> options;
 
-  String jid;
+  String? jid;
 
-  ServiceType _proto;
+  ServiceType? _proto;
 
-  String domain;
+  String? domain;
 
-  xml.XmlElement features;
+  xml.XmlElement? features;
 
-  Map<String, dynamic> _saslData;
+  late Map<String, dynamic> _saslData;
 
   bool doSession = false;
 
   bool doBind = false;
 
-  Function _startConnection;
+  Function? _startConnection;
 
-  Function _attachConnection;
+  Function? _attachConnection;
 
-  RegisterPlugin get register {
-    return Strophe.connectionPlugins['register'];
+  RegisterPlugin? get register {
+    return Strophe.connectionPlugins['register'] as RegisterPlugin?;
   }
 
-  DiscoPlugin get disco {
-    return Strophe.connectionPlugins['disco'];
+  DiscoPlugin? get disco {
+    return Strophe.connectionPlugins['disco'] as DiscoPlugin?;
   }
 
-  RosterPlugin get roster {
-    return Strophe.connectionPlugins['roster'];
+  RosterPlugin? get roster {
+    return Strophe.connectionPlugins['roster'] as RosterPlugin?;
   }
 
-  AdministrationPlugin get admin {
-    return Strophe.connectionPlugins['admin'];
+  AdministrationPlugin? get admin {
+    return Strophe.connectionPlugins['admin'] as AdministrationPlugin?;
   }
 
-  CapsPlugin get caps {
-    return Strophe.connectionPlugins['caps'];
+  CapsPlugin? get caps {
+    return Strophe.connectionPlugins['caps'] as CapsPlugin?;
   }
 
-  MucPlugin get muc {
-    return Strophe.connectionPlugins['muc'];
+  MucPlugin? get muc {
+    return Strophe.connectionPlugins['muc'] as MucPlugin?;
   }
 
-  BookMarkPlugin get bookmarks {
-    return Strophe.connectionPlugins['bookmarks'];
+  BookMarkPlugin? get bookmarks {
+    return Strophe.connectionPlugins['bookmarks'] as BookMarkPlugin?;
   }
 
-  LastActivity get lastactivity {
-    return Strophe.connectionPlugins['lastactivity'];
+  LastActivity? get lastactivity {
+    return Strophe.connectionPlugins['lastactivity'] as LastActivity?;
   }
 
-  PepPlugin get pep {
-    return Strophe.connectionPlugins['pep'];
+  PepPlugin? get pep {
+    return Strophe.connectionPlugins['pep'] as PepPlugin?;
   }
 
-  PrivacyPlugin get privacy {
-    return Strophe.connectionPlugins['privacy'];
+  PrivacyPlugin? get privacy {
+    return Strophe.connectionPlugins['privacy'] as PrivacyPlugin?;
   }
 
-  PubsubPlugin get pubsub {
-    return Strophe.connectionPlugins['pubsub'];
+  PubsubPlugin? get pubsub {
+    return Strophe.connectionPlugins['pubsub'] as PubsubPlugin?;
   }
 
-  PrivateStorage get private {
-    return Strophe.connectionPlugins['private'];
+  PrivateStorage? get private {
+    return Strophe.connectionPlugins['private'] as PrivateStorage?;
   }
 
-  VCardTemp get vcard {
-    return Strophe.connectionPlugins['vcard'];
+  VCardTemp? get vcard {
+    return Strophe.connectionPlugins['vcard'] as VCardTemp?;
   }
 
-  ChatStatesNotificationPlugin get chatstates {
-    return Strophe.connectionPlugins['chatstates'];
+  ChatStatesNotificationPlugin? get chatstates {
+    return Strophe.connectionPlugins['chatstates'] as ChatStatesNotificationPlugin?;
   }
 
-  List<StanzaTimedHandler> timedHandlers;
+  late List<StanzaTimedHandler?> timedHandlers;
 
-  List<StanzaHandler> handlers;
+  late List<StanzaHandler?> handlers;
 
-  List<StanzaTimedHandler> removeTimeds;
+  late List<StanzaTimedHandler?> removeTimeds;
 
-  List<StanzaHandler> removeHandlers;
+  late List<StanzaHandler?> removeHandlers;
 
-  List<StanzaTimedHandler> addTimeds;
+  late List<StanzaTimedHandler> addTimeds;
 
-  Map<String, Map<int, Function>> protocolErrorHandlers;
+  late Map<String, Map<int, Function>> protocolErrorHandlers;
 
-  List<StanzaHandler> addHandlers;
+  late List<StanzaHandler?> addHandlers;
 
-  Timer _idleTimeout;
+  Timer? _idleTimeout;
 
-  StanzaTimedHandler _disconnectTimeout;
+  StanzaTimedHandler? _disconnectTimeout;
 
   bool authenticated = false;
 
@@ -563,52 +563,52 @@ class StropheConnection {
 
   bool restored = false;
 
-  List<dynamic> _data;
+  List<dynamic>? _data;
 
-  int _uniqueId;
+  int? _uniqueId;
 
-  StanzaHandler _saslSuccessHandler;
+  StanzaHandler? _saslSuccessHandler;
 
-  StanzaHandler _saslFailureHandler;
+  StanzaHandler? _saslFailureHandler;
 
-  StanzaHandler _saslChallengeHandler;
+  StanzaHandler? _saslChallengeHandler;
 
-  int maxRetries;
+  late int maxRetries;
 
-  List<Cookie> cookies;
+  List<Cookie>? cookies;
 
-  List<StropheRequest> _requests;
+  List<StropheRequest>? _requests;
 
-  ConnectCallBack connectCallback;
+  ConnectCallBack? connectCallback;
 
-  StropheSASLMechanism _saslMechanism;
+  StropheSASLMechanism? _saslMechanism;
 
-  Map Function(xml.XmlElement elem) _xmlInputCallback = (xml.XmlElement elem) => {};
+  Map Function(xml.XmlElement? elem) _xmlInputCallback = (xml.XmlElement? elem) => {};
 
-  Map Function(xml.XmlElement elem) _xmlOutputCallback = (xml.XmlElement elem) => {};
+  Map Function(xml.XmlElement? elem) _xmlOutputCallback = (xml.XmlElement? elem) => {};
 
-  RawInputCallback _rawInputCallback = (String elem) => {};
-  RawInputCallback _connexionErrorInputCallback = (String error) => {};
+  RawInputCallback _rawInputCallback = (String? elem) => {};
+  RawInputCallback _connexionErrorInputCallback = (String? error) => {};
 
-  RawInputCallback _rawOutputCallback = (String elem) => {};
+  RawInputCallback _rawOutputCallback = (String? elem) => {};
 
   // The service URL
-  int get uniqueId {
+  int? get uniqueId {
     return this._uniqueId;
   }
 
-  List get requests {
+  List? get requests {
     return this._requests;
   }
 
-  Function _reset;
-  ConnexionCallback _connectCb;
-  AuthenticateCallback _authenticate;
+  Function? _reset;
+  ConnexionCallback? _connectCb;
+  AuthenticateCallback? _authenticate;
 
-  StropheConnection(String service, [Map options]) {
+  StropheConnection(String service, [Map? options]) {
     this.service = service;
     // Configuration options
-    this.options = options ?? {};
+    this.options = options as Map<String, dynamic>? ?? {};
     String proto = this.options['protocol'] ?? "";
 
     // Select protocal based on service or options
@@ -670,13 +670,13 @@ class StropheConnection {
     this._attachConnection = this._attach;
     // initialize plugins
     Strophe.connectionPlugins.forEach((String key, PluginClass value) {
-      Strophe.connectionPlugins[key].init(this);
+      Strophe.connectionPlugins[key]!.init(this);
     });
   }
 
   initializeFunction() {
     this._reset = () {
-      this._proto.reset();
+      this._proto!.reset();
 
       // SASL
       this.doSession = false;
@@ -699,12 +699,12 @@ class StropheConnection {
       this._requests = [];
       this._uniqueId = 0;
     };
-    this._connectCb = (req, Function _callback, String raw) {
+    this._connectCb = (req, Function? _callback, String raw) {
       this.connected = true;
 
-      xml.XmlElement bodyWrap;
+      xml.XmlElement? bodyWrap;
       try {
-        bodyWrap = this._proto.reqToData(req);
+        bodyWrap = this._proto!.reqToData(req);
       } catch (e) {
         if (e.toString() != "badformat") {
           throw e;
@@ -717,8 +717,8 @@ class StropheConnection {
       }
 
       //if (this.xmlInput != Strophe.Connection.xmlInput) {
-      if (bodyWrap.name.qualified == this._proto.strip && bodyWrap.children.length > 0) {
-        this.xmlInput(bodyWrap.firstChild);
+      if (bodyWrap.name.qualified == this._proto!.strip && bodyWrap.children.length > 0) {
+        this.xmlInput(bodyWrap.firstChild as xml.XmlElement?);
       } else {
         this.xmlInput(bodyWrap);
       }
@@ -731,7 +731,7 @@ class StropheConnection {
       }
       //}
 
-      int conncheck = this._proto.connectCb(bodyWrap);
+      int conncheck = this._proto!.connectCb(bodyWrap);
       if (conncheck == Strophe.Status['CONNFAIL']) {
         return;
       }
@@ -739,16 +739,18 @@ class StropheConnection {
       // Check for the stream:features tag
       bool hasFeatures;
       if (bodyWrap.getAttribute('xmlns') == Strophe.NS['STREAM']) {
-        hasFeatures = bodyWrap.findAllElements("features").length > 0 ?? bodyWrap.findAllElements("stream:features").length > 0;
+        hasFeatures =
+            bodyWrap.findAllElements("features").length > 0 || bodyWrap.findAllElements("stream:features").length > 0;
       } else {
-        hasFeatures = bodyWrap.findAllElements("stream:features").length > 0 ?? bodyWrap.findAllElements("features").length > 0;
+        hasFeatures =
+            bodyWrap.findAllElements("stream:features").length > 0 || bodyWrap.findAllElements("features").length > 0;
       }
       if (!hasFeatures) {
         this._noAuthReceived(_callback);
         return;
       }
 
-      List<StropheSASLMechanism> matched = [];
+      List<StropheSASLMechanism?> matched = [];
 
       String mech;
       List<xml.XmlElement> mechanisms = bodyWrap.findAllElements("mechanism").toList();
@@ -767,10 +769,10 @@ class StropheConnection {
         }
       }
       if (this.doAuthentication != false) {
-        this.authenticate(matched);
+        this.authenticate!(matched);
       }
     };
-    this._authenticate = (List<StropheSASLMechanism> matched) {
+    this._authenticate = (List<StropheSASLMechanism?> matched) {
       this._attemptSASLAuth(matched).then((bool result) {
         if (result != true) this._attemptLegacyAuth();
       });
@@ -781,15 +783,15 @@ class StropheConnection {
     Strophe.addConnectionPlugin(name, ptype);
   }
 
-  ServiceType get proto {
+  ServiceType? get proto {
     return this._proto;
   }
 
-  set proto(ServiceType pro) {
+  set proto(ServiceType? pro) {
     this._proto = pro;
   }
 
-  List<dynamic> get data {
+  List<dynamic>? get data {
     return this._data;
   }
 
@@ -797,11 +799,11 @@ class StropheConnection {
     this._data = data;
   }
 
-  Timer get idleTimeout {
+  Timer? get idleTimeout {
     return this._idleTimeout;
   }
 
-  set idleTimeout(Timer newTimeout) {
+  set idleTimeout(Timer? newTimeout) {
     this._idleTimeout = newTimeout;
   }
 
@@ -810,11 +812,11 @@ class StropheConnection {
   ///
   /// This function should be called after a connection is disconnected
   /// before this connection is reused.
-  set reset(Function callback) {
+  set reset(Function? callback) {
     this._reset = callback;
   }
 
-  Function get reset {
+  Function? get reset {
     if (_reset == null) initializeFunction();
     return this._reset;
   }
@@ -861,7 +863,7 @@ class StropheConnection {
   /// Returns:
   /// A unique string to be used for the id attribute.
 
-  String getUniqueId([String suffix]) {
+  String getUniqueId([String? suffix]) {
     String uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replaceAllMapped(new RegExp(r"[xy]"), (Match c) {
       int r = new Random().nextInt(16) | 0;
       int v = c.group(0) == 'x' ? r : r & 0x3 | 0x8;
@@ -896,7 +898,7 @@ class StropheConnection {
   /// // Triggers HTTP 500 error and onError handler will be called
   /// conn.connect('user_jid@incorrect_jabber_host', 'secret', onConnect);
   addProtocolErrorHandler(String protocol, int statusCode, Function callback) {
-    this.protocolErrorHandlers[protocol][statusCode] = callback;
+    this.protocolErrorHandlers[protocol]![statusCode] = callback;
   }
 
   /// Function: connect
@@ -946,7 +948,7 @@ class StropheConnection {
     this._startConnection = value;
   }
 
-  _connect(String jid, String pass, ConnectCallBack callback, [int wait, int hold, String route, String authcid]) {
+  _connect(String jid, String pass, ConnectCallBack callback, [int? wait, int? hold, String? route, String? authcid]) {
     this.jid = jid;
 
     /** Variable: authzid
@@ -957,7 +959,7 @@ class StropheConnection {
     /** Variable: authcid
      *  Authentication identity (User name).
      */
-    this.authcid = authcid ?? Strophe.getNodeFromJid(this.jid);
+    this.authcid = authcid ?? Strophe.getNodeFromJid(this.jid!);
 
     /** Variable: pass
      *  Authentication identity (User password).
@@ -982,7 +984,7 @@ class StropheConnection {
 
     this._changeConnectStatus(Strophe.Status['CONNECTING'], null);
 
-    this._proto.connect(wait, hold, route);
+    this._proto!.connect(wait, hold, route);
   }
 
   /// Function: attach
@@ -1018,7 +1020,7 @@ class StropheConnection {
 
   _attach(String jid, String sid, int rid, Function callback, int wait, int hold, int wind) {
     if (this._proto is StropheBosh) {
-      this._proto.attach(jid, sid, rid, callback, wait, hold, wind);
+      this._proto!.attach(jid, sid, rid, callback, wait, hold, wind);
     } else {
       throw {'name': 'StropheSessionError', 'message': 'The "attach" method can only be used with a BOSH connection.'};
     }
@@ -1052,7 +1054,7 @@ class StropheConnection {
   /// allowed range of request ids this are valid.  The default is 5.
   restore(String jid, Function callback, int wait, int hold, int wind) {
     if (this._sessionCachingSupported()) {
-      this._proto.restore(jid, callback, wait, hold, wind);
+      this._proto!.restore(jid, callback, wait, hold, wind);
     } else {
       throw {'name': 'StropheSessionError', 'message': 'The "restore" method can only be used with a BOSH connection.'};
     }
@@ -1096,7 +1098,7 @@ class StropheConnection {
   /// Parameters:
   /// (XMLElement) elem - The XML data received by the connection.
   set xmlInput(XmlInputCallback callback) {
-    this._xmlInputCallback = callback;
+    this._xmlInputCallback = callback as Map<dynamic, dynamic> Function(xml.XmlElement?);
   }
 
   XmlInputCallback get xmlInput {
@@ -1129,7 +1131,7 @@ class StropheConnection {
   /// Parameters:
   /// (XMLElement) elem - The XMLdata sent by the connection.
   set xmlOutput(XmlInputCallback callback) {
-    this._xmlOutputCallback = callback;
+    this._xmlOutputCallback = callback as Map<dynamic, dynamic> Function(xml.XmlElement?);
   }
 
   XmlInputCallback get xmlOutput {
@@ -1184,7 +1186,7 @@ class StropheConnection {
   ///
   /// Parameters:
   /// (Number) rid - The next valid rid
-  nextValidRid(int rid) {
+  nextValidRid(int? rid) {
     return;
   }
 
@@ -1218,7 +1220,7 @@ class StropheConnection {
         this._queueData(elem.tree());
       }
     }
-    this._proto.send();
+    this._proto!.send();
   }
 
   /// Function: flush
@@ -1231,7 +1233,7 @@ class StropheConnection {
   flush() {
     // cancel the pending idle period and run the idle function
     // immediately
-    if (this._idleTimeout != null) this._idleTimeout.cancel();
+    if (this._idleTimeout != null) this._idleTimeout!.cancel();
     this._onIdle();
   }
 
@@ -1250,10 +1252,10 @@ class StropheConnection {
   ///
   /// Returns:
   /// The id used to send the presence.
-  String sendPresence(xml.XmlNode element, [Function callback, Function errback, int timeout]) {
-    StanzaTimedHandler timeoutHandler;
+  String sendPresence(xml.XmlNode element, [Function? callback, Function? errback, int? timeout]) {
+    StanzaTimedHandler? timeoutHandler;
     xml.XmlElement elem = element is xml.XmlDocument ? element.rootElement : (element as xml.XmlElement);
-    String id = elem.getAttribute("id");
+    String? id = elem.getAttribute("id");
     if (id == null || id.isEmpty) {
       // inject id if not found
       id = this.getUniqueId("sendPresence");
@@ -1266,7 +1268,7 @@ class StropheConnection {
         if (timeoutHandler != null) {
           this.deleteTimedHandler(timeoutHandler);
         }
-        String type = elem.getAttribute("type");
+        String? type = elem.getAttribute("type");
         if (type == 'error') {
           if (errback != null) {
             errback(stanza);
@@ -1306,13 +1308,17 @@ class StropheConnection {
   ///
   /// Returns:
   /// The id used to send the IQ.
-  String sendIQ(xml.XmlNode el, [Function callback, Function errback, int timeout]) {
-    StanzaTimedHandler timeoutHandler;
-    xml.XmlElement elem = el;
+  String sendIQ(xml.XmlNode? el, [Function? callback, Function? errback, int? timeout]) {
+    StanzaTimedHandler? timeoutHandler;
+    xml.XmlElement? elem;
     if (el is xml.XmlDocument)
       elem = el.rootElement;
-    else if (el is xml.XmlElement) elem = el;
-    String id = elem.getAttribute("id");
+    else if (el is xml.XmlElement) {
+      elem = el;
+    } else {
+      elem = el as xml.XmlElement?;
+    }
+    String? id = elem!.getAttribute("id");
     if (id == null) {
       // inject id if not found
       id = this.getUniqueId("sendIQ");
@@ -1326,7 +1332,7 @@ class StropheConnection {
           this.deleteTimedHandler(timeoutHandler);
         }
         if (stanza is xml.XmlDocument) stanza = stanza.rootElement;
-        String iqtype = stanza.getAttribute("type");
+        String? iqtype = stanza.getAttribute("type");
         if (iqtype == 'result') {
           if (callback != null) {
             callback(stanza);
@@ -1336,7 +1342,7 @@ class StropheConnection {
             errback(stanza);
           }
         } else {
-          throw {'name': "StropheError", 'message': "Got bad IQ type of " + iqtype};
+          throw {'name': "StropheError", 'message': "Got bad IQ type of " + iqtype!};
         }
       }, null, 'iq', ['error', 'result'], id);
       // if timeout specified, set up a timeout handler.
@@ -1359,20 +1365,20 @@ class StropheConnection {
   /// PrivateFunction: _queueData
   /// Queue outgoing data for later sending.  Also ensures this the data
   /// is a DOMElement.
-  _queueData(xml.XmlNode element) {
-    xml.XmlElement elem = element is xml.XmlDocument ? element.rootElement : (element as xml.XmlElement);
+  _queueData(xml.XmlNode? element) {
+    xml.XmlElement? elem = element is xml.XmlDocument ? element.rootElement : (element as xml.XmlElement?);
 
     if (elem == null || elem.name == null) {
       throw {'name': "StropheError", 'message': "Cannot queue non-DOMElement."};
     }
-    this._data.add(elem);
+    this._data!.add(elem);
   }
 
   /// PrivateFunction: _sendRestart
   /// Send an xmpp:restart stanza.
   _sendRestart() {
-    this._data.add("restart");
-    this._proto.sendRestart();
+    this._data!.add("restart");
+    this._proto!.sendRestart();
     // XXX: setTimeout should be called only with function expressions (23974bc1)
     this._idleTimeout = new Timer(new Duration(milliseconds: 100), () {
       this._onIdle();
@@ -1415,7 +1421,7 @@ class StropheConnection {
   ///
   /// Parameters:
   /// (Strophe.TimedHandler) handRef - The handler reference.
-  deleteTimedHandler(StanzaTimedHandler handRef) {
+  deleteTimedHandler(StanzaTimedHandler? handRef) {
     // this must be done in the Idle loop so this we don't change
     // the handlers during iteration
     this.removeTimeds.add(handRef);
@@ -1484,7 +1490,7 @@ class StropheConnection {
   ///
   /// Returns:
   /// A reference to the handler this can be used to remove it.
-  StanzaHandler addHandler(Function handler, String ns, String name, [type, String id, String from, options]) {
+  StanzaHandler addHandler(Function? handler, String? ns, String? name, [type, String? id, String? from, options]) {
     StanzaHandler hand = Strophe.Handler(handler, ns, name, type, id, from, options);
     this.addHandlers.add(hand);
     return hand;
@@ -1499,7 +1505,7 @@ class StropheConnection {
   ///
   ///  Parameters:
   ///    (Strophe.Handler) handRef - The handler reference.
-  deleteHandler(StanzaHandler handRef) {
+  deleteHandler(StanzaHandler? handRef) {
     // this must be done in the Idle loop so this we don't change
     // the handlers during iteration
     this.removeHandlers.add(handRef);
@@ -1565,17 +1571,17 @@ class StropheConnection {
 
     Strophe.info("Disconnect was called because: " + reason);
     if (this.connected) {
-      StanzaBuilder pres;
+      StanzaBuilder? pres;
       this.disconnecting = true;
       if (this.authenticated) {
         pres = Strophe.$pres({'xmlns': Strophe.NS['CLIENT'], 'type': 'unavailable'});
       }
       // setup timeout handler
       this._disconnectTimeout = this._addSysTimedHandler(3000, this._onDisconnectTimeout);
-      this._proto.disconnect(pres?.tree());
+      this._proto!.disconnect(pres?.tree());
     } else {
       Strophe.info("Disconnect was called before Strophe connected to the server");
-      this._proto.abortAllRequests();
+      this._proto!.abortAllRequests();
       this._doDisconnect();
     }
   }
@@ -1589,25 +1595,25 @@ class StropheConnection {
   ///      in Strophe.Status
   ///    (String) condition - the error condition or null
   ///    (XMLElement) elem - The triggering stanza.
-  changeConnectStatus(int status, String condition, [xml.XmlNode elem]) {
+  changeConnectStatus(int? status, String? condition, [xml.XmlNode? elem]) {
     this._changeConnectStatus(status, condition, elem);
   }
 
-  _changeConnectStatus(int status, [String condition, xml.XmlNode elem]) {
+  _changeConnectStatus(int? status, [String? condition, xml.XmlNode? elem]) {
     // notify all plugins listening for status changes
     Strophe.connectionPlugins.forEach((String key, PluginClass plugin) {
       if (plugin.statusChanged != null) {
         try {
-          plugin.statusChanged(status, condition);
+          plugin.statusChanged!(status, condition);
         } catch (err) {
-          Strophe.error("" + key + " plugin caused an exception " + "changing status: " + err);
+          Strophe.error("" + key + " plugin caused an exception " + "changing status: " + err.toString());
         }
       }
     });
     // notify the user's callback
     if (this.connectCallback != null) {
       try {
-        if (connectCallback != null) this.connectCallback(status, condition, elem);
+        if (connectCallback != null) this.connectCallback!(status, condition, elem);
       } catch (e) {
         if (e is Error) Strophe.handleError(e);
         Strophe.error("User connection callback caused an " + "exception: " + e.toString());
@@ -1626,7 +1632,7 @@ class StropheConnection {
 
   _doDisconnect([condition]) {
     if (this._idleTimeout != null) {
-      this._idleTimeout.cancel();
+      this._idleTimeout!.cancel();
     }
 
     // Cancel Disconnect Timeout
@@ -1634,7 +1640,7 @@ class StropheConnection {
       this.deleteTimedHandler(this._disconnectTimeout);
       this._disconnectTimeout = null;
     }
-    this._proto.doDisconnect();
+    this._proto!.doDisconnect();
 
     this.authenticated = false;
     this.disconnecting = false;
@@ -1664,18 +1670,18 @@ class StropheConnection {
   ///  Parameters:
   ///    (Strophe.Request) req - The request this has data ready.
   ///    (string) req - The stanza a raw string (optiona).
-  dataRecv(req, [String raw]) {
+  dataRecv(req, [String? raw]) {
     this._dataRecv(req, raw);
   }
 
-  _dataRecv(req, [String raw]) {
-    xml.XmlElement elem = this._proto.reqToData(req);
+  _dataRecv(req, [String? raw]) {
+    xml.XmlElement? elem = this._proto!.reqToData(req);
     if (elem == null) {
       return;
     }
     //if (this.xmlInput != Strophe.Connection.xmlInput) {
-    if (elem.name.qualified == this._proto.strip && elem.children.length > 0) {
-      this.xmlInput(elem.firstChild);
+    if (elem.name.qualified == this._proto!.strip && elem.children.length > 0) {
+      this.xmlInput(elem.firstChild as xml.XmlElement?);
     } else {
       this.xmlInput(elem);
     }
@@ -1690,7 +1696,7 @@ class StropheConnection {
 
     // remove handlers scheduled for deletion
     int i;
-    StanzaHandler hand;
+    StanzaHandler? hand;
     while (this.removeHandlers.length > 0) {
       hand = this.removeHandlers.removeLast();
       i = this.handlers.indexOf(hand);
@@ -1703,22 +1709,22 @@ class StropheConnection {
       this.handlers.add(this.addHandlers.removeLast());
     }
     // handle graceful disconnect
-    if (this.disconnecting && this._proto.emptyQueue()) {
+    if (this.disconnecting && this._proto!.emptyQueue()) {
       this._doDisconnect();
       return;
     }
-    xml.XmlElement stanza;
-    if (elem.name.qualified == this._proto.strip)
-      stanza = elem.firstChild as xml.XmlElement;
+    xml.XmlElement? stanza;
+    if (elem.name.qualified == this._proto!.strip)
+      stanza = elem.firstChild as xml.XmlElement?;
     else
       stanza = elem;
-    String type = stanza.getAttribute('type');
+    String? type = stanza!.getAttribute('type');
     if (type == null) {
       try {
         type = (elem.firstChild as xml.XmlElement).getAttribute('type');
       } catch (e) {}
     }
-    String cond;
+    String? cond;
     Iterable<xml.XmlElement> conflict;
     if (type != null && type == "terminate") {
       // Don't process stanzas this come in after disconnect
@@ -1729,7 +1735,7 @@ class StropheConnection {
       // an error occurred
 
       cond = elem.getAttribute('condition');
-      conflict = elem.document.findAllElements("conflict");
+      conflict = elem.document!.findAllElements("conflict");
       if (cond != null) {
         if (cond == "remote-stream-error" && conflict.length > 0) {
           cond = "conflict";
@@ -1744,11 +1750,11 @@ class StropheConnection {
     // send each incoming stanza through the handler chain
     Strophe.forEachChild(elem, null, (child) {
       // process handlers
-      List<StanzaHandler> newList = this.handlers;
+      List<StanzaHandler?> newList = this.handlers;
       this.handlers = [];
 
       for (int i = 0; i < newList.length; i++) {
-        StanzaHandler hand = newList.elementAt(i);
+        StanzaHandler hand = newList.elementAt(i)!;
         // encapsulate 'handler.run' not to lose the whole handler list if
         // one of the handlers throws an exception
         try {
@@ -1769,7 +1775,7 @@ class StropheConnection {
 
   /// Attribute: mechanisms
   ///  SASL Mechanisms available for Connection.
-  Map<String, StropheSASLMechanism> mechanisms = {};
+  Map<String?, StropheSASLMechanism> mechanisms = {};
 
   /// PrivateFunction: _no_auth_received
   ///
@@ -1781,7 +1787,7 @@ class StropheConnection {
     return _noAuthReceived;
   }
 
-  _noAuthReceived([Function _callback]) {
+  _noAuthReceived([Function? _callback]) {
     String errorMsg = "Server did not offer a supported authentication mechanism";
     Strophe.error(errorMsg);
     this._changeConnectStatus(Strophe.Status['CONNFAIL'], Strophe.ErrorCondition['NO_AUTH_MECH']);
@@ -1807,11 +1813,11 @@ class StropheConnection {
   ///      Useful for plugins with their own xmpp connect callback (when they
   ///      want to do something special).
 
-  set connectCb(ConnexionCallback param) {
+  set connectCb(ConnexionCallback? param) {
     this._connectCb = param;
   }
 
-  ConnexionCallback get connectCb {
+  ConnexionCallback? get connectCb {
     if (_reset == null) initializeFunction();
     return this._connectCb;
   }
@@ -1828,14 +1834,14 @@ class StropheConnection {
   ///  Parameters:
   ///    (Array) mechanisms - Array of SASL mechanisms.
   ///
-  List<StropheSASLMechanism> sortMechanismsByPriority(List<StropheSASLMechanism> mechanisms) {
+  List<StropheSASLMechanism?> sortMechanismsByPriority(List<StropheSASLMechanism?> mechanisms) {
     // Sorting mechanisms according to priority.
     int higher;
-    StropheSASLMechanism swap;
+    StropheSASLMechanism? swap;
     for (int i = 0; i < mechanisms.length - 1; ++i) {
       higher = i;
       for (int j = i + 1; j < mechanisms.length; ++j) {
-        if (mechanisms[j].priority > mechanisms[higher].priority) {
+        if (mechanisms[j]!.priority > mechanisms[higher]!.priority) {
           higher = j;
         }
       }
@@ -1860,12 +1866,12 @@ class StropheConnection {
   ///    (Boolean) mechanism_found - true or false, depending on whether a
   ///          valid SASL mechanism was found with which authentication could be
   ///          started.
-  Future<bool> _attemptSASLAuth(List<StropheSASLMechanism> mechanisms) async {
-    mechanisms = this.sortMechanismsByPriority(mechanisms ?? []);
+  Future<bool> _attemptSASLAuth(List<StropheSASLMechanism?> mechanisms) async {
+    mechanisms = this.sortMechanismsByPriority(mechanisms);
 
     bool mechanismFound = false;
     for (int i = 0; i < mechanisms.length; ++i) {
-      if (!mechanisms[i].test(this)) {
+      if (!mechanisms[i]!.test(this)) {
         continue;
       }
       this._saslSuccessHandler = this._addSysHandler(this._saslSuccessCb, null, "success", null, null);
@@ -1873,11 +1879,12 @@ class StropheConnection {
       this._saslChallengeHandler = this._addSysHandler(this._saslChallengeCb, null, "challenge", null, null);
 
       this._saslMechanism = mechanisms[i];
-      this._saslMechanism.onStart(this);
+      this._saslMechanism!.onStart(this);
 
-      StanzaBuilder requestAuthExchange = Strophe.$build("auth", {'xmlns': Strophe.NS['SASL'], 'mechanism': this._saslMechanism.name});
-      if (this._saslMechanism.isClientFirst) {
-        String response = await this._saslMechanism.onChallenge(this, null);
+      StanzaBuilder requestAuthExchange =
+          Strophe.$build("auth", {'xmlns': Strophe.NS['SASL'], 'mechanism': this._saslMechanism!.name});
+      if (this._saslMechanism!.isClientFirst) {
+        String response = await (this._saslMechanism!.onChallenge(this, null) as FutureOr<String>);
         requestAuthExchange.t(base64.encode(response.runes.toList()));
       }
       this.send(requestAuthExchange.tree());
@@ -1892,11 +1899,11 @@ class StropheConnection {
   ///  Attempt legacy (i.e. non-SASL) authentication.
   ///
   _attemptLegacyAuth() {
-    if (Strophe.getNodeFromJid(this.jid) == null) {
+    if (Strophe.getNodeFromJid(this.jid!) == null) {
       // we don't have a node, which is required for non-anonymous
       // client connections
       this._changeConnectStatus(Strophe.Status['CONNFAIL'], Strophe.ErrorCondition['MISSING_JID_NODE']);
-      this.disconnect(Strophe.ErrorCondition['MISSING_JID_NODE']);
+      this.disconnect(Strophe.ErrorCondition['MISSING_JID_NODE']!);
     } else {
       // Fall back to legacy authentication
       this._changeConnectStatus(Strophe.Status['AUTHENTICATING'], null);
@@ -1904,7 +1911,7 @@ class StropheConnection {
       this.send(Strophe.$iq({'type': "get", 'to': this.domain, 'id': "_auth_1"})
           .c("query", {'xmlns': Strophe.NS['AUTH']})
           .c("username", {})
-          .t(Strophe.getNodeFromJid(this.jid))
+          .t(Strophe.getNodeFromJid(this.jid!))
           .tree());
     }
   }
@@ -1922,11 +1929,11 @@ class StropheConnection {
   ///    (Array) matched - Array of SASL mechanisms supported.
   ///
 
-  set authenticate(AuthenticateCallback callback) {
+  set authenticate(AuthenticateCallback? callback) {
     this._authenticate = callback;
   }
 
-  AuthenticateCallback get authenticate {
+  AuthenticateCallback? get authenticate {
     if (_authenticate == null) initializeFunction();
     return this._authenticate;
   }
@@ -1936,10 +1943,10 @@ class StropheConnection {
   ///authenticate
   Future<bool> _saslChallengeCb(elem) async {
     String challenge = new String.fromCharCodes(base64.decode(Strophe.getText(elem)));
-    String response = await this._saslMechanism.onChallenge(this, challenge);
+    String? response = await this._saslMechanism!.onChallenge(this, challenge);
     StanzaBuilder stanza = Strophe.$build('response', {'xmlns': Strophe.NS['SASL']});
     if (response != "") {
-      stanza.t(base64.encode(response.runes.toList()));
+      stanza.t(base64.encode(response!.runes.toList()));
     }
     this.send(stanza.tree());
     return true;
@@ -1964,18 +1971,18 @@ class StropheConnection {
     StanzaBuilder iq = Strophe.$iq({'type': "set", 'id': "_auth_2"})
         .c('query', {'xmlns': Strophe.NS['AUTH']})
         .c('username', {})
-        .t(Strophe.getNodeFromJid(this.jid))
+        .t(Strophe.getNodeFromJid(this.jid!))
         .up()
         .c('password')
         .t(this.pass);
 
-    if (Strophe.getResourceFromJid(this.jid) == null || Strophe.getResourceFromJid(this.jid).isEmpty) {
+    if (Strophe.getResourceFromJid(this.jid!) == null || Strophe.getResourceFromJid(this.jid!)!.isEmpty) {
       // since the user has not supplied a resource, we pick
       // a default one here.  unlike other auth methods, the server
       // cannot do this for us.
-      this.jid = Strophe.getBareJidFromJid(this.jid) + '/strophe';
+      this.jid = Strophe.getBareJidFromJid(this.jid)! + '/strophe';
     }
-    iq.up().c('resource', {}).t(Strophe.getResourceFromJid(this.jid));
+    iq.up().c('resource', {}).t(Strophe.getResourceFromJid(this.jid!));
 
     this._addSysHandler(this._auth2Cb, null, null, null, "_auth_2");
     this.send(iq.tree());
@@ -1993,12 +2000,12 @@ class StropheConnection {
   ///  Returns:
   ///    false to remove the handler.
   bool _saslSuccessCb(elem) {
-    String saslData = this._saslData["server-signature"];
+    String? saslData = this._saslData["server-signature"];
     if (saslData != null && saslData.isNotEmpty) {
-      String serverSignature;
+      String? serverSignature;
       String success = new String.fromCharCodes(base64.decode(Strophe.getText(elem)));
       RegExp attribMatch = new RegExp(r"([a-z]+)=([^,]+)(,|$)");
-      Match matches = attribMatch.firstMatch(success);
+      Match matches = attribMatch.firstMatch(success)!;
       if (matches.group(1) == "v") {
         serverSignature = matches.group(2);
       }
@@ -2018,7 +2025,7 @@ class StropheConnection {
     Strophe.info("SASL authentication succeeded.");
 
     if (this._saslMechanism != null) {
-      this._saslMechanism.onSuccess();
+      this._saslMechanism!.onSuccess();
     }
 
     // remove old handlers
@@ -2080,9 +2087,13 @@ class StropheConnection {
     } else {
       this._addSysHandler(this._saslBindCb, null, null, null, "_bind_auth_2");
 
-      String resource = Strophe.getResourceFromJid(this.jid);
+      String? resource = Strophe.getResourceFromJid(this.jid!);
       if (resource != null && resource.isNotEmpty) {
-        this.send(Strophe.$iq({'type': "set", 'id': "_bind_auth_2"}).c('bind', {"xmlns": Strophe.NS['BIND']}).c('resource', {}).t(resource).tree());
+        this.send(Strophe.$iq({'type': "set", 'id': "_bind_auth_2"})
+            .c('bind', {"xmlns": Strophe.NS['BIND']})
+            .c('resource', {})
+            .t(resource)
+            .tree());
       } else {
         this.send(Strophe.$iq({'type': "set", 'id': "_bind_auth_2"}).c('bind', {'xmlns': Strophe.NS['BIND']}).tree());
       }
@@ -2101,8 +2112,8 @@ class StropheConnection {
   bool _saslBindCb(xml.XmlElement elem) {
     if (elem.getAttribute("type") == "error") {
       Strophe.info("SASL binding failed.");
-      List<xml.XmlElement> conflict = elem.findAllElements("conflict");
-      String condition;
+      List<xml.XmlElement> conflict = elem.findAllElements("conflict") as List<xml.XmlElement>;
+      String? condition;
       if (conflict.length > 0) {
         condition = Strophe.ErrorCondition['CONFLICT'];
       }
@@ -2120,7 +2131,8 @@ class StropheConnection {
 
         if (this.doSession) {
           this._addSysHandler(this._saslSessionCb, null, null, null, "_session_auth_2");
-          this.send(Strophe.$iq({'type': "set", 'id': "_session_auth_2"}).c('session', {'xmlns': Strophe.NS['SESSION']}).tree());
+          this.send(Strophe.$iq({'type': "set", 'id': "_session_auth_2"})
+              .c('session', {'xmlns': Strophe.NS['SESSION']}).tree());
         } else {
           this.authenticated = true;
           this._changeConnectStatus(Strophe.Status['CONNECTED'], null);
@@ -2166,7 +2178,7 @@ class StropheConnection {
   ///  Returns:
   ///    false to remove the handler.
   /* jshint unused:false */
-  _saslFailureCb([xml.XmlElement elem]) {
+  _saslFailureCb([xml.XmlElement? elem]) {
     // delete unneeded handlers
     if (this._saslSuccessHandler != null) {
       this.deleteHandler(this._saslSuccessHandler);
@@ -2177,7 +2189,7 @@ class StropheConnection {
       this._saslChallengeHandler = null;
     }
 
-    if (this._saslMechanism != null) this._saslMechanism.onFailure();
+    if (this._saslMechanism != null) this._saslMechanism!.onFailure();
     this._changeConnectStatus(Strophe.Status['AUTHFAIL'], null, elem);
     return false;
   }
@@ -2236,11 +2248,11 @@ class StropheConnection {
   ///    (String) name - The stanza name to match.
   ///    (String) type - The stanza type attribute to match.
   ///    (String) id - The stanza id attribute to match.
-  StanzaHandler addSysHandler(Function handler, String ns, String name, String type, String id) {
+  StanzaHandler addSysHandler(Function handler, String? ns, String name, String? type, String? id) {
     return _addSysHandler(handler, ns, name, type, id);
   }
 
-  StanzaHandler _addSysHandler(Function handler, String ns, String name, String type, String id) {
+  StanzaHandler _addSysHandler(Function handler, String? ns, String? name, String? type, String? id) {
     StanzaHandler hand = Strophe.Handler(handler, ns, name, type, id);
     hand.user = false;
     this.addHandlers.add(hand);
@@ -2261,7 +2273,7 @@ class StropheConnection {
 
   bool _onDisconnectTimeout() {
     this._changeConnectStatus(Strophe.Status['CONNTIMEOUT'], null);
-    this._proto.onDisconnectTimeout();
+    this._proto!.onDisconnectTimeout();
     // actually disconnect
     this._doDisconnect();
     return false;
@@ -2279,8 +2291,8 @@ class StropheConnection {
   _onIdle() {
     int i;
     int since;
-    List<StanzaTimedHandler> newList;
-    StanzaTimedHandler thand;
+    List<StanzaTimedHandler?> newList;
+    StanzaTimedHandler? thand;
     // add timed handlers scheduled for addition
     // NOTE: we add before remove in the case a timed handler is
     // added and then deleted before the next _onIdle() call.
@@ -2302,10 +2314,10 @@ class StropheConnection {
     newList = [];
     for (i = 0; i < this.timedHandlers.length; i++) {
       thand = this.timedHandlers[i];
-      if (this.authenticated || !thand.user) {
-        since = thand.lastCalled + thand.period;
+      if (this.authenticated || !thand!.user) {
+        since = thand!.lastCalled + thand.period;
         if (since - now <= 0) {
-          if (thand.run()) {
+          if (thand.run()!) {
             newList.add(thand);
           }
         } else {
@@ -2315,9 +2327,9 @@ class StropheConnection {
     }
     this.timedHandlers = newList;
 
-    this._idleTimeout.cancel();
+    this._idleTimeout!.cancel();
 
-    this._proto.onIdle();
+    this._proto!.onIdle();
     // reactivate the timer only if connected
     if (this.connected) {
       // XXX: setTimeout should be called only with function expressions (23974bc1)
@@ -2359,13 +2371,13 @@ class StropheConnection {
 ///  Returns:
 ///    A new Strophe.SASLMechanism object.
 class StropheSASLMechanism {
-  String name;
+  String? name;
 
-  bool isClientFirst;
+  late bool isClientFirst;
 
-  num priority;
+  late num priority;
 
-  StropheConnection _connection;
+  StropheConnection? _connection;
 
   StropheSASLMechanism(String name, bool isClientFirst, num priority) {
     /** PrivateVariable: name
@@ -2422,7 +2434,7 @@ class StropheSASLMechanism {
   ///  Returns:
   ///    (String) Mechanism response.
   /* jshint unused:false */
-  Future<String> onChallenge(StropheConnection connection, [String challenge, String testCnonce]) {
+  Future<String?> onChallenge(StropheConnection connection, [String? challenge, String? testCnonce]) {
     throw {'message': "You should implement challenge handling!"};
   }
 
@@ -2463,6 +2475,7 @@ class StropheSASLAnonymous extends StropheSASLMechanism {
     return connection.authcid == null;
   }
 }
+
 /// PrivateConstructor: SASLPlain
 ///  SASL PLAIN authentication.
 
@@ -2474,12 +2487,12 @@ class StropheSASLPlain extends StropheSASLMechanism {
     return connection.authcid != null;
   }
 
-  Future<String> onChallenge(StropheConnection connection, [String challenge, dynamic testCnonce]) async {
-    String authStr = connection.authzid;
+  Future<String> onChallenge(StropheConnection connection, [String? challenge, dynamic testCnonce]) async {
+    String authStr = connection.authzid!;
     authStr = authStr + "\u0000";
-    authStr = authStr + connection.authcid;
+    authStr = authStr + connection.authcid!;
     authStr = authStr + "\u0000";
-    authStr = authStr + connection.pass;
+    authStr = authStr + connection.pass!;
     return Utils.utf16to8(authStr);
   }
 }
@@ -2495,11 +2508,11 @@ class StropheSASLSHA1 extends StropheSASLMechanism {
     return connection.authcid != null;
   }
 
-  Future<String> onChallenge(StropheConnection connection, [String challenge, String testCnonce]) async {
+  Future<String> onChallenge(StropheConnection connection, [String? challenge, String? testCnonce]) async {
     if (first && challenge != null && challenge.isNotEmpty) return await this._onChallenge(connection, challenge);
     Random random = new Random();
     String cnonce = testCnonce ?? await MD5.hexdigest((random.nextDouble() * 1234567890).toString());
-    String authStr = "n=" + Utils.utf16to8(connection.authcid);
+    String authStr = "n=" + Utils.utf16to8(connection.authcid!);
     authStr += ",r=";
     authStr += cnonce;
     connection._saslData['cnonce'] = cnonce;
@@ -2512,17 +2525,17 @@ class StropheSASLSHA1 extends StropheSASLMechanism {
   }
 
   Future<String> _onChallenge(StropheConnection connection, String challenge) async {
-    String nonce, salt, iter;
+    String? nonce, salt, iter;
     List<int> hi, U, uOld;
     String serverKey, pass;
     List clientKey, clientSignature;
     String responseText = "c=biws,";
     String authMessage = connection._saslData["client-first-message-bare"] + "," + challenge + ",";
-    String cnonce = connection._saslData['cnonce'];
+    String? cnonce = connection._saslData['cnonce'];
     RegExp attribMatch = new RegExp(r"([a-z]+)=([^,]+)(,|$)");
     while (attribMatch.hasMatch(challenge)) {
-      Match match = attribMatch.firstMatch(challenge);
-      challenge = challenge.replaceAll(match.group(0), "");
+      Match match = attribMatch.firstMatch(challenge)!;
+      challenge = challenge.replaceAll(match.group(0)!, "");
       switch (match.group(1)) {
         case "r":
           nonce = match.group(2);
@@ -2536,20 +2549,20 @@ class StropheSASLSHA1 extends StropheSASLMechanism {
       }
     }
 
-    if (nonce.substring(0, cnonce.length) != cnonce) {
+    if (nonce!.substring(0, cnonce!.length) != cnonce) {
       connection._saslData = {};
       return connection._saslFailureCb();
     }
 
     responseText += "r=" + nonce;
     authMessage += responseText;
-    salt = new String.fromCharCodes(base64.decode(salt));
+    salt = new String.fromCharCodes(base64.decode(salt!));
     salt += "\x00\x00\x00\x01";
-    pass = Utils.utf16to8(connection.pass);
+    pass = Utils.utf16to8(connection.pass!);
     hi = await SHA1.core_hmac_sha1(pass, salt);
     uOld = hi;
     String s;
-    int parseInt = int.parse(iter, radix: 10);
+    int parseInt = int.parse(iter!, radix: 10);
     for (int i = 1; i < parseInt; i++) {
       s = await SHA1.binb2str(uOld);
       U = await SHA1.core_hmac_sha1(pass, s);
@@ -2562,7 +2575,8 @@ class StropheSASLSHA1 extends StropheSASLMechanism {
     String hiStr = await SHA1.binb2str(hi);
     clientKey = await SHA1.core_hmac_sha1(hiStr, "Client Key");
     serverKey = await SHA1.str_hmac_sha1(hiStr, "Server Key");
-    clientSignature = await SHA1.core_hmac_sha1(await SHA1.str_sha1(await SHA1.binb2str(clientKey)), authMessage);
+    clientSignature =
+        await SHA1.core_hmac_sha1(await SHA1.str_sha1(await SHA1.binb2str(clientKey as List<int>)), authMessage);
     connection._saslData["server-signature"] = await SHA1.b64_hmac_sha1(serverKey, authMessage);
     for (int k = 0; k < 5; k++) {
       clientKey[k] ^= clientSignature[k];
@@ -2589,20 +2603,20 @@ class StropheSASLMD5 extends StropheSASLMechanism {
     return '"' + str.replaceAll(new RegExp(r"\\"), "\\\\").replaceAll(new RegExp(r'"'), '\\"') + '"';
   }
 
-  Future<String> onChallenge(StropheConnection connection, [String challenge, String testCnonce]) async {
+  Future<String> onChallenge(StropheConnection connection, [String? challenge, String? testCnonce]) async {
     if (first) return "";
     if (challenge == null) challenge = '';
     //if (testCnonce == null) testCnonce = '';
     RegExp attribMatch = new RegExp(r'([a-z]+)=("[^"]+"|[^,"]+)(?:,|$)');
     String cnonce = testCnonce ?? await MD5.hexdigest((new Random().nextDouble() * 1234567890).toString());
-    String realm = "";
-    String host;
-    String nonce = "";
-    String qop = "";
-    Match matches;
-    while (attribMatch.hasMatch(challenge)) {
+    String? realm = "";
+    String? host;
+    String? nonce = "";
+    String? qop = "";
+    Match? matches;
+    while (attribMatch.hasMatch(challenge!)) {
       matches = attribMatch.firstMatch(challenge);
-      challenge = challenge.replaceAll(matches.group(0), "");
+      challenge = challenge.replaceAll(matches!.group(0)!, "");
       switch (matches.group(1)) {
         case "realm":
           realm = matches.group(2);
@@ -2618,25 +2632,27 @@ class StropheSASLMD5 extends StropheSASLMechanism {
           break;
       }
     }
-    String digestUri = connection.servtype + "/" + connection.domain;
+    String digestUri = connection.servtype + "/" + connection.domain!;
     if (host != null) {
       digestUri = digestUri + "/" + host;
     }
 
-    String cred = Utils.utf16to8(connection.authcid + ":" + realm + ":" + this._connection.pass);
-    String a1 = await MD5.hash(cred) + ":" + nonce + ":" + cnonce;
+    String cred = Utils.utf16to8(connection.authcid! + ":" + realm! + ":" + this._connection!.pass!);
+    String a1 = await MD5.hash(cred) + ":" + nonce! + ":" + cnonce;
     String a2 = 'AUTHENTICATE:' + digestUri;
 
     String responseText = "";
     responseText += 'charset=utf-8,';
-    responseText += 'username=' + this._quote(Utils.utf16to8(connection.authcid)) + ',';
+    responseText += 'username=' + this._quote(Utils.utf16to8(connection.authcid!)) + ',';
     responseText += 'realm=' + this._quote(realm) + ',';
     responseText += 'nonce=' + this._quote(nonce) + ',';
     responseText += 'nc=00000001,';
     responseText += 'cnonce=' + this._quote(cnonce) + ',';
     responseText += 'digest-uri=' + this._quote(digestUri) + ',';
-    responseText +=
-        'response=' + await MD5.hexdigest(await MD5.hexdigest(a1) + ":" + nonce + ":00000001:" + cnonce + ":auth:" + await MD5.hexdigest(a2)) + ",";
+    responseText += 'response=' +
+        await MD5.hexdigest(
+            await MD5.hexdigest(a1) + ":" + nonce + ":00000001:" + cnonce + ":auth:" + await MD5.hexdigest(a2)) +
+        ",";
     responseText += 'qop=auth';
     print(responseText);
     first = true;
@@ -2653,15 +2669,15 @@ class StropheSASLOAuthBearer extends StropheSASLMechanism {
     return connection.pass != null;
   }
 
-  Future<String> onChallenge(StropheConnection connection, [String challenge, dynamic testCnonce]) async {
+  Future<String> onChallenge(StropheConnection connection, [String? challenge, dynamic testCnonce]) async {
     String authStr = 'n,';
     if (connection.authcid != null) {
-      authStr = authStr + 'a=' + connection.authzid;
+      authStr = authStr + 'a=' + connection.authzid!;
     }
     authStr = authStr + ',';
     authStr = authStr + "\u0001";
     authStr = authStr + 'auth=Bearer ';
-    authStr = authStr + connection.pass;
+    authStr = authStr + connection.pass!;
     authStr = authStr + "\u0001";
     authStr = authStr + "\u0001";
 
@@ -2679,7 +2695,7 @@ class StropheSASLOAuthBearer extends StropheSASLMechanism {
 class StropheSASLExternal extends StropheSASLMechanism {
   StropheSASLExternal() : super("EXTERNAL", true, 10);
 
-  Future<String> onChallenge(StropheConnection connection, [String challenge, dynamic testCnonce]) async {
+  Future<String?> onChallenge(StropheConnection connection, [String? challenge, dynamic testCnonce]) async {
     /** According to XEP-178, an authzid SHOULD NOT be presented when the
      * authcid contained or implied in the client certificate is the JID (i.e.
      * authzid) with which the user wants to log in as.
@@ -2700,30 +2716,30 @@ class StropheSASLXOAuth2 extends StropheSASLMechanism {
     return connection.pass != null;
   }
 
-  Future<String> onChallenge(StropheConnection connection, [String challenge, dynamic testCnonce]) async {
+  Future<String> onChallenge(StropheConnection connection, [String? challenge, dynamic testCnonce]) async {
     String authStr = '\u0000';
     if (connection.authcid != null) {
-      authStr = authStr + connection.authzid;
+      authStr = authStr + connection.authzid!;
     }
     authStr = authStr + "\u0000";
-    authStr = authStr + connection.pass;
+    authStr = authStr + connection.pass!;
 
     return Utils.utf16to8(authStr);
   }
 }
 
 abstract class ServiceType {
-  StropheConnection _conn;
+  StropheConnection? _conn;
 
-  StropheConnection get conn {
+  StropheConnection? get conn {
     return this._conn;
   }
 
-  String strip;
+  String? strip;
 
   reset();
 
-  connect([int wait, int hold, String route]);
+  connect([int? wait, int? hold, String? route]);
 
   void attach(String jid, String sid, int rid, Function callback, int wait, int hold, int wind) {}
 
@@ -2733,13 +2749,13 @@ abstract class ServiceType {
 
   void sendRestart() {}
 
-  void disconnect(xml.XmlElement pres) {}
+  void disconnect(xml.XmlElement? pres) {}
 
   void abortAllRequests() {}
 
   void doDisconnect() {}
 
-  xml.XmlElement reqToData(dynamic req) {
+  xml.XmlElement? reqToData(dynamic req) {
     return null;
   }
 
