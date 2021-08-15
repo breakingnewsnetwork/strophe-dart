@@ -5,7 +5,7 @@ import 'package:xml/xml.dart' as xml;
 import 'package:strophe/src/enums.dart';
 
 class Strophe {
-  static const String VERSION = '0.0.1';
+  static const String VERSION = '1.0.0';
 
   /// PrivateConstants: Timeout Values
   /// Timeout values for error states.  These values are in seconds.

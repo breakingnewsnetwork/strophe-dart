@@ -836,10 +836,10 @@ class XmppRoom {
           data['error'] = (ref1 = c.children[0] as XmlElement) != null ? ref1.name.qualified : 0;
           break;
         case "status":
-          data['status'] = c.text ?? null;
+          data['status'] = c.text;
           break;
         case "show":
-          data['show'] = c.text ?? null;
+          data['show'] = c.text;
           break;
         case "x":
           if (c.getAttribute("xmlns") == Strophe.NS['MUC_USER']) {

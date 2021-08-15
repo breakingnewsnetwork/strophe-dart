@@ -365,7 +365,7 @@ class StropheBosh extends ServiceType {
   void _hitError(int? reqStatus) {
     this.errors++;
     Strophe.warn("request errored, status: " + reqStatus.toString() + ", number of errors: " + this.errors.toString());
-    if (this.errors! > 4) {
+    if (this.errors > 4) {
       this._conn.onDisconnectTimeout();
     }
   }
@@ -584,7 +584,7 @@ class StropheBosh extends ServiceType {
     int? reqStatus = this._getRequestStatus(req, -1);
 
     // make sure we limit the number of retries
-    if (req.sends! > this._conn.maxRetries) {
+    if (req.sends > this._conn.maxRetries) {
       this._conn.onDisconnectTimeout();
       return;
     }
@@ -611,10 +611,10 @@ class StropheBosh extends ServiceType {
 
       // Implement progressive backoff for reconnects --
       // First retry (send == 1) should also be instantaneous
-      if (req.sends! > 1) {
+      if (req.sends > 1) {
         // Using a cube of the retry number creates a nicely
         // expanding retry window
-        num backoff = min((Strophe.TIMEOUT * this.wait!).floor(), pow(req.sends!, 3)) * 1000;
+        num backoff = min((Strophe.TIMEOUT * this.wait!).floor(), pow(req.sends, 3)) * 1000;
         new Timer(new Duration(milliseconds: backoff as int), () {
           // XXX: setTimeout should be called only with function expressions (23974bc1)
           this._sendFunc(req);

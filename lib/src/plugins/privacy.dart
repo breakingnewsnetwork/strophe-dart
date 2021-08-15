@@ -120,7 +120,6 @@ class PrivacyPlugin extends PluginClass {
   ///    (Function) successCallback - Called upon successful deletion.
   ///    (Function) failCallback - Called upon fail deletion.
   deleteList(String name, Function successCallback, Function failCallback) {
-    name = name ?? '';
     this.connection!.sendIQ(
         Strophe.$iq({'type': "set", 'id': this.connection!.getUniqueId("privacy")})
             .c("query", {'xmlns': Strophe.NS['PRIVACY']}).c("list", {'name': name}).tree(), () {
