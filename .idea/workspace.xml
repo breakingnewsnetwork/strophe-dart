@@ -8,18 +8,10 @@
   <component name="ChangeListManager">
     <list default="true" id="2c28d36b-b5ce-4bc8-ba12-d5abd04f1a5d" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/bosh.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/bosh.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/core.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/core.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/enums.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/enums.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/plugins/bookmark.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/plugins/bookmark.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/plugins/muc.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/plugins/muc.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/plugins/privacy.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/plugins/privacy.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/plugins/private-storage.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/plugins/private-storage.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/plugins/pubsub.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/plugins/pubsub.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/plugins/register.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/plugins/register.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/plugins/roster.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/plugins/roster.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/plugins/vcard-temp.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/plugins/vcard-temp.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/sessionstorage.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/sessionstorage.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/websocket.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/websocket.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -88,10 +80,21 @@
     <servers />
   </component>
   <component name="WindowStateProjectService">
-    <state x="446" y="141" key="SettingsEditor" timestamp="1594221836756">
-      <screen x="0" y="23" width="1920" height="977" />
+    <state x="2288" y="506" width="587" height="534" key="find.popup" timestamp="1630236717160">
+      <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state x="446" y="141" key="SettingsEditor/0.23.1920.977@0.23.1920.977" timestamp="1594221836756" />
+    <state x="2288" y="506" width="587" height="534" key="find.popup/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1630236717160" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/src/enums.dart</url>
+          <line>202</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="masterDetails">
     <states>

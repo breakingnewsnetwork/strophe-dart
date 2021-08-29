@@ -65,7 +65,7 @@ class MucPlugin extends PluginClass {
       pres = pres.c("history", historyAttrs).up();
     }
     if (password != null && password.isNotEmpty) {
-      pres.cnode(Strophe.xmlElement("password", attrs: [], text: password)!);
+      pres.cnode(Strophe.xmlElement("password", attrs: [], text: password));
     }
     if (extendedPresence != null) {
       pres.up().cnode(extendedPresence);

@@ -26,11 +26,11 @@ class PubsubBuilder extends StanzaBuilder {
   ///  Returns:
   ///    The Strophe.Builder object.
   form(String? ns, Map<String, dynamic> options) {
-    XmlNode xmlElement = Strophe.xmlElement('x', attrs: {"xmlns": "jabber:x:data", "type": "submit"})!;
+    XmlNode xmlElement = Strophe.xmlElement('x', attrs: {"xmlns": "jabber:x:data", "type": "submit"});
     PubsubBuilder aX = this.cnode(xmlElement) as PubsubBuilder;
-    aX.cnode(Strophe.xmlElement('field', attrs: {"var": "FORM_TYPE", "type": "hidden"})!).cnode(Strophe.xmlElement('value')!).t(ns).up().up();
+    aX.cnode(Strophe.xmlElement('field', attrs: {"var": "FORM_TYPE", "type": "hidden"})).cnode(Strophe.xmlElement('value')).t(ns).up().up();
     options.forEach((String key, value) {
-      aX.cnode(Strophe.xmlElement('field', attrs: {"var": key})!).cnode(Strophe.xmlElement('value')!).t(options[key].toString()).up().up();
+      aX.cnode(Strophe.xmlElement('field', attrs: {"var": key})).cnode(Strophe.xmlElement('value')).t(options[key].toString()).up().up();
     });
     return this;
   }
@@ -54,7 +54,7 @@ class PubsubBuilder extends StanzaBuilder {
       this.c(tag, array[i]['attrs']);
       if (array[i]['data'] == null) continue;
       if (array[i]['data'] is String) {
-        this.cnode(Strophe.xmlElement('data', attrs: array[i]['attrs'], text: array[i]['data'])!);
+        this.cnode(Strophe.xmlElement('data', attrs: array[i]['attrs'], text: array[i]['data']));
       } else {
         var stanza = array[i]['data'];
         if (array[i]['data'] is StanzaBuilder) stanza = array[i]['data'].tree();

@@ -71,7 +71,7 @@ const Map<String, int> ELEMENTTYPE = const {'NORMAL': 1, 'TEXT': 3, 'CDATA': 4, 
 
 class StanzaBuilder {
   List<int> node = [];
-  xml.XmlNode? nodeTree;
+  late xml.XmlNode nodeTree;
 
   StanzaBuilder(String name, [Map<String?, dynamic>? attrs]) {
     // Set correct namespace for jabber:client elements
@@ -107,7 +107,7 @@ class StanzaBuilder {
   }
 
   xml.XmlElement get currentNode {
-    xml.XmlNode _currentNode = this.nodeTree!.children[0];
+    xml.XmlNode _currentNode = this.nodeTree.children[0];
     for (int i = 1; i < this.node.length; i++) {
       _currentNode = _currentNode.children[this.node[i]];
     }
@@ -153,7 +153,7 @@ class StanzaBuilder {
   /// The Stophe.Builder object.
   StanzaBuilder root() {
     this.node = [];
-    this.nodeTree = this.nodeTree!.root;
+    this.nodeTree = this.nodeTree.root;
     return this;
   }
 
@@ -171,11 +171,11 @@ class StanzaBuilder {
   StanzaBuilder attrs(Map<String?, dynamic> moreattrs) {
     moreattrs.forEach((String? key, dynamic value) {
       if (value == null || value.isEmpty) {
-        this.nodeTree!.firstChild!.attributes.removeWhere((xml.XmlAttribute attr) {
+        this.nodeTree.firstChild?.attributes.removeWhere((xml.XmlAttribute attr) {
           return attr.name.qualified == key;
         });
       } else {
-        this.nodeTree!.firstChild!.attributes.add(new xml.XmlAttribute(new xml.XmlName.fromString(key!), value));
+        this.nodeTree.firstChild?.attributes.add(new xml.XmlAttribute(new xml.XmlName.fromString(key!), value));
       }
     });
     return this;
@@ -200,7 +200,8 @@ class StanzaBuilder {
     xml.XmlNode? child = Strophe.xmlElement(name, attrs: attrs, text: text);
     xml.XmlElement xmlElement = child is xml.XmlDocument ? child.rootElement : (child as xml.XmlElement?)!;
 
-    xml.XmlNode currentNode = this.nodeTree!.children[0];
+    xml.XmlNode currentNode = this.nodeTree.children[0];
+
     for (int i = 1; i < this.node.length; i++) {
       currentNode = currentNode.children[this.node[i]];
     }
@@ -224,7 +225,7 @@ class StanzaBuilder {
   /// The Strophe.Builder object.
   StanzaBuilder cnode(xml.XmlNode elem) {
     xml.XmlNode newElem = Strophe.copyElement(elem);
-    xml.XmlNode currentNode = this.nodeTree!.children[0];
+    xml.XmlNode currentNode = this.nodeTree.children[0];
     for (int i = 1; i < this.node.length; i++) {
       currentNode = currentNode.children[this.node[i]];
     }
@@ -245,7 +246,7 @@ class StanzaBuilder {
   /// Returns:
   /// The Strophe.Builder object.
   StanzaBuilder t(String? text) {
-    xml.XmlNode currentNode = this.nodeTree!.children[0];
+    xml.XmlNode currentNode = this.nodeTree.children[0];
     for (int i = 1; i < this.node.length; i++) {
       currentNode = currentNode.children[this.node[i]];
     }
@@ -264,14 +265,14 @@ class StanzaBuilder {
   /// Returns:
   /// The Strophe.Builder object.
   StanzaBuilder h(String html) {
-    xml.XmlNode fragment = Strophe.xmlElement('body')!;
+    xml.XmlNode fragment = Strophe.xmlElement('body');
 
     // force the browser to try and fix any invalid HTML tags
     fragment.children.add(Strophe.xmlTextNode(html));
 
     // copy cleaned html into an xml dom
     xml.XmlNode xhtml = Strophe.createHtml(fragment)!;
-    xml.XmlNode currentNode = this.nodeTree!.children[0];
+    xml.XmlNode currentNode = this.nodeTree.children[0];
     for (int i = 1; i < this.node.length; i++) {
       currentNode = currentNode.children[this.node[i]];
     }
@@ -364,7 +365,7 @@ class StanzaHandler {
     }
 
     String? elemType = elem.getAttribute("type");
-    bool statement = this.type!.indexOf(elemType) != -1;
+    bool statement = this.type?.indexOf(elemType) != -1;
     if (this.namespaceMatch(elem) &&
         (this.name == null || Strophe.isTagEqual(elem, this.name)) &&
         (this.type == null || this.type!.contains(null) || statement) &&
@@ -387,7 +388,9 @@ class StanzaHandler {
   ///
   bool run(xml.XmlNode elem) {
     bool result = false;
-    if (this.handler == null) return false;
+    if (this.handler == null) {
+      return false;
+    }
     try {
       var handResult = this.handler!(elem);
       if (handResult == null || handResult == true) result = true;

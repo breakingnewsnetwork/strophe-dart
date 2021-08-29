@@ -203,12 +203,12 @@ class Strophe {
   ///
   ///  Returns:
   ///    A new XML DOM element.
-  static xml.XmlNode? xmlElement(String name, {dynamic attrs, String? text}) {
+  static xml.XmlNode xmlElement(String name, {dynamic attrs, String? text}) {
     if (name.trim().isEmpty) {
-      return null;
+      throw Exception('name must be not empty');
     }
     if (attrs != null && (attrs is! List<List<String>>) && (attrs is! Map<String, dynamic>)) {
-      return null;
+      throw Exception('attrs must be List<List<String>> or Map<String, dynamic>');
     }
     Map<String, String> attributes = {};
     if (attrs != null) {
