@@ -328,7 +328,7 @@ Extend connection object to have plugin name 'pubsub'.
       (Function) success  - callback function for successful node creation.
       (Function) error    - error callback function.
    */
-  unsubscribe(String node, String jid, [String? service, String? subid, Function? success, Function? error]) {
+  unsubscribe(String node, String? jid, [String? service, String? subid, Function? success, Function? error]) {
     String iqid = this.connection!.getUniqueId("pubsubunsubscribenode");
     service = service != null && service.isNotEmpty ? service : this.service;
     StanzaBuilder iq = Strophe.$iq({'from': this.jid, 'to': service, 'type': 'set', 'id': iqid})

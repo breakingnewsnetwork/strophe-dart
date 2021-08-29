@@ -59,7 +59,7 @@ class BookMarkPlugin extends PluginClass {
   /// the conference room on login.
   /// @param {function} [success] - Callback after success
   /// @param {function} [error] - Callback after error
-  add(String roomJid, String alias, [String? nick, bool autojoin = true, Function? success, Function? error]) {
+  add(String roomJid, String? alias, [String? nick, bool autojoin = true, Function? success, Function? error]) {
     StanzaBuilder stanza = Strophe.$iq({'type': 'set'}).c('pubsub', {'xmlns': Strophe.NS['PUBSUB']}).c(
         'publish', {'node': Strophe.NS['BOOKMARKS']}).c('item', {'id': 'current'}).c('storage', {'xmlns': Strophe.NS['BOOKMARKS']});
 
@@ -181,7 +181,7 @@ class BookMarkPlugin extends PluginClass {
   /// @param {string} roomJid - The JabberID of the chat roomJid you want to remove
   /// @param {function} [success] - Callback after success
   /// @param {function} [error] - Callback after error
-  update(String roomJid, String alias, [String? nick, bool autojoin = true, Function? success, Function? error]) {
+  update(String roomJid, String? alias, [String? nick, bool? autojoin = true, Function? success, Function? error]) {
     StanzaBuilder stanza = Strophe.$iq({'type': 'set'}).c('pubsub', {'xmlns': Strophe.NS['PUBSUB']}).c(
         'publish', {'node': Strophe.NS['BOOKMARKS']}).c('item', {'id': 'current'}).c('storage', {'xmlns': Strophe.NS['BOOKMARKS']});
 

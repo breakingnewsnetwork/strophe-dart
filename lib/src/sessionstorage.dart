@@ -33,7 +33,7 @@ class SessionStorage {
   }
 
   static void setItem(String name, String value) {
-    if (name == null || name.isEmpty || name.trim().length == 0) return;
+    if (name.isEmpty || name.trim().length == 0) return;
     if (_session.containsKey(name)) {
       _session.update(name, (String str) {
         return value;

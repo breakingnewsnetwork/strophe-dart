@@ -28,6 +28,7 @@ class RegisterPlugin extends PluginClass {
   bool processed_features = false;
 
   Map<String, dynamic> _connect_cb_data = {};
+
   //The plugin must have the init function.
   @override
   init(StropheConnection conn) {
@@ -49,8 +50,7 @@ class RegisterPlugin extends PluginClass {
     Strophe.Status['CONFLICT'] = i + 4;
     Strophe.Status['NOTACCEPTABLE'] = i + 5;
     if (conn.disco != null) {
-      if (conn.disco!.addFeature is Function)
-        conn.disco!.addFeature(Strophe.NS['REGISTER']);
+      if (conn.disco!.addFeature is Function) conn.disco!.addFeature(Strophe.NS['REGISTER']);
       //if (conn.disco.addNode is Function)
       //conn.disco.addNode(Strophe.NS['REGISTER'], {'items': []});
     }
@@ -124,34 +124,33 @@ class RegisterPlugin extends PluginClass {
   }
 
   /** Function: connect
-     *  Starts the registration process.
-     *
-     *  As the registration process proceeds, the user supplied callback will
-     *  be triggered multiple times with status updates.  The callback
-     *  should take two arguments - the status code and the error condition.
-     *
-     *  The status code will be one of the values in the Strophe.Status
-     *  constants.  The error condition will be one of the conditions
-     *  defined in RFC 3920 or the condition 'strophe-parsererror'.
-     *
-     *  Please see XEP 77 for a more detailed explanation of the optional
-     *  parameters below.
-     *
-     *  Parameters:
-     *    (String) domain - The xmpp server's Domain.  This will be the server,
-     *      which will be contacted to register a new JID.
-     *      The server has to provide and allow In-Band Registration (XEP-0077).
-     *    (Function) callback The connect callback function.
-     *    (Integer) wait - The optional HTTPBIND wait value.  This is the
-     *      time the server will wait before returning an empty result for
-     *      a request.  The default setting of 60 seconds is recommended.
-     *      Other settings will require tweaks to the Strophe.TIMEOUT value.
-     *    (Integer) hold - The optional HTTPBIND hold value.  This is the
-     *      number of connections the server will hold at one time.  This
-     *      should almost always be set to 1 (the default).
-     */
-  connect(String domain, ConnectCallBack callback,
-      [int? wait, int? hold, String? route]) {
+   *  Starts the registration process.
+   *
+   *  As the registration process proceeds, the user supplied callback will
+   *  be triggered multiple times with status updates.  The callback
+   *  should take two arguments - the status code and the error condition.
+   *
+   *  The status code will be one of the values in the Strophe.Status
+   *  constants.  The error condition will be one of the conditions
+   *  defined in RFC 3920 or the condition 'strophe-parsererror'.
+   *
+   *  Please see XEP 77 for a more detailed explanation of the optional
+   *  parameters below.
+   *
+   *  Parameters:
+   *    (String) domain - The xmpp server's Domain.  This will be the server,
+   *      which will be contacted to register a new JID.
+   *      The server has to provide and allow In-Band Registration (XEP-0077).
+   *    (Function) callback The connect callback function.
+   *    (Integer) wait - The optional HTTPBIND wait value.  This is the
+   *      time the server will wait before returning an empty result for
+   *      a request.  The default setting of 60 seconds is recommended.
+   *      Other settings will require tweaks to the Strophe.TIMEOUT value.
+   *    (Integer) hold - The optional HTTPBIND hold value.  This is the
+   *      number of connections the server will hold at one time.  This
+   *      should almost always be set to 1 (the default).
+   */
+  connect(String domain, ConnectCallBack callback, [int? wait, int? hold, String? route]) {
     StropheConnection conn = this.connection!;
     this.domain = Strophe.getDomainFromJid(domain);
     this.instructions = "";
@@ -163,15 +162,15 @@ class RegisterPlugin extends PluginClass {
   }
 
   /** PrivateFunction: _register_cb
-     *  _Private_ handler for initial registration request.
-     *
-     *  This handler is used to process the initial registration request
-     *  response from the BOSH server. It is used to set up a bosh session
-     *  and requesting registration fields from host.
-     *type
-     *  Parameters:
-     *    (Strophe.Request) req - The current request.
-     */
+   *  _Private_ handler for initial registration request.
+   *
+   *  This handler is used to process the initial registration request
+   *  response from the BOSH server. It is used to set up a bosh session
+   *  and requesting registration fields from host.
+   *type
+   *  Parameters:
+   *    (Strophe.Request) req - The current request.
+   */
   _register_cb(req, Function? _callback, String raw) {
     StropheConnection conn = this.connection!;
     Strophe.info("_register_cb was called");
@@ -182,8 +181,7 @@ class RegisterPlugin extends PluginClass {
       return false;
     }
     //if (conn.xmlInput !== Strophe.Connection.prototype.xmlInput) {
-    if (bodyWrap.name.qualified == conn.proto!.strip &&
-        bodyWrap.children.length > 0) {
+    if (bodyWrap.name.qualified == conn.proto!.strip && bodyWrap.children.length > 0) {
       conn.xmlInput(bodyWrap.firstChild as XmlElement?);
     } else {
       conn.xmlInput(bodyWrap);
@@ -203,8 +201,7 @@ class RegisterPlugin extends PluginClass {
     }
     // Check for the stream:features tag
     List<XmlElement> register = bodyWrap.findAllElements("register").toList();
-    List<XmlElement> mechanisms =
-        bodyWrap.findAllElements("mechanism").toList();
+    List<XmlElement> mechanisms = bodyWrap.findAllElements("mechanism").toList();
     if (register.length == 0 && mechanisms.length == 0) {
       conn.noAuthReceived(_callback);
       return false;
@@ -217,21 +214,20 @@ class RegisterPlugin extends PluginClass {
 
     // send a get request for registration, to get all required data fields
     conn.addSysHandler(this._get_register_cb, null, "iq", null, null);
-    conn.sendIQ(Strophe.$iq({'type': "get"}).c(
-        "query", {'xmlns': Strophe.NS['REGISTER']}).tree());
+    conn.sendIQ(Strophe.$iq({'type': "get"}).c("query", {'xmlns': Strophe.NS['REGISTER']}).tree());
 
     return true;
   }
 
   /** PrivateFunction: _get_register_cb
-     *  _Private_ handler for Registration Fields Request.
-     *
-     *  Parameters:
-     *    (XMLElement) elem - The query stanza.
-     *
-     *  Returns:
-     *    false to remove SHOULD contain the registration information currentlSHOULD contain the registration information currentlSHOULD contain the registration information currentlthe handler.
-     */
+   *  _Private_ handler for Registration Fields Request.
+   *
+   *  Parameters:
+   *    (XMLElement) elem - The query stanza.
+   *
+   *  Returns:
+   *    false to remove SHOULD contain the registration information currentlSHOULD contain the registration information currentlSHOULD contain the registration information currentlthe handler.
+   */
   _get_register_cb(dynamic elem) {
     XmlElement field;
     List<XmlElement> queries;
@@ -262,27 +258,25 @@ class RegisterPlugin extends PluginClass {
         // ignore x for now
         continue;
       }
-      conn!.register!.fields[field.name.qualified.toLowerCase()] =
-          Strophe.getText(field);
+      conn!.register!.fields[field.name.qualified.toLowerCase()] = Strophe.getText(field);
     }
     conn!.changeConnectStatus(Strophe.Status['REGISTER'], null);
     return false;
   }
 
   /** Function: submit
-     *  Submits Registration data.
-     *
-     *  As the registration process proceeds, the user supplied callback will
-     *  be triggered with status code Strophe.Status['REGISTER']. At this point
-     *  the user should fill all required fields in connection['REGISTER'].fields
-     *  and invoke this function to procceed in the registration process.
-     */
+   *  Submits Registration data.
+   *
+   *  As the registration process proceeds, the user supplied callback will
+   *  be triggered with status code Strophe.Status['REGISTER']. At this point
+   *  the user should fill all required fields in connection['REGISTER'].fields
+   *  and invoke this function to procceed in the registration process.
+   */
   submit() {
     String name;
     List<String> fields;
     StropheConnection conn = this.connection!;
-    StanzaBuilder query = Strophe
-        .$iq({'type': "set"}).c("query", {'xmlns': Strophe.NS['REGISTER']});
+    StanzaBuilder query = Strophe.$iq({'type': "set"}).c("query", {'xmlns': Strophe.NS['REGISTER']});
     // set required fields
     fields = this.fields.keys.toList();
     for (int i = 0; i < fields.length; i++) {
@@ -321,15 +315,14 @@ class RegisterPlugin extends PluginClass {
           this.instructions = Strophe.getText(field);
           continue;
         }
-        this.fields[field.name.qualified.toLowerCase()] =
-            Strophe.getText(field);
+        this.fields[field.name.qualified.toLowerCase()] = Strophe.getText(field);
       }
     }
 
     if (stanza.getAttribute("type") == "error") {
       errors = stanza.findAllElements("error").toList();
       if (errors.length != 1) {
-        conn!.changeConnectStatus(Strophe.Status['REGIFAIL'], "unknown");
+        conn?.changeConnectStatus(Strophe.Status['REGIFAIL'], "unknown");
         return false;
       }
 
@@ -339,19 +332,21 @@ class RegisterPlugin extends PluginClass {
       XmlElement firstChild = errors[0].firstChild as XmlElement;
       String error = firstChild.name.qualified.toLowerCase();
       if (error == 'conflict') {
-        conn!.changeConnectStatus(Strophe.Status['CONFLICT'], error);
+        conn?.changeConnectStatus(Strophe.Status['CONFLICT'], error);
       } else if (error == 'not-acceptable') {
-        conn!.changeConnectStatus(Strophe.Status['NOTACCEPTABLE'], error);
+        conn?.changeConnectStatus(Strophe.Status['NOTACCEPTABLE'], error);
       } else {
-        String text =
-            Strophe.getText(errors[0].findElements('text').toList()[0]) +
-                '/$error';
-        conn!.changeConnectStatus(Strophe.Status['REGIFAIL'], text ?? error);
+        var textElement = errors[0].findElements('text').toList();
+        String text = error;
+        if(textElement.isNotEmpty) {
+          text = Strophe.getText(textElement[0]) + '/$error';
+        }
+        conn?.changeConnectStatus(Strophe.Status['REGIFAIL'], text);
       }
     } else {
       Strophe.info("Registration successful.");
 
-      conn!.changeConnectStatus(Strophe.Status['REGISTERED'], null);
+      conn?.changeConnectStatus(Strophe.Status['REGISTERED'], null);
     }
 
     return false;

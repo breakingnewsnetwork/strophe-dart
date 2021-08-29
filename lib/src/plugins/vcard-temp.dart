@@ -27,7 +27,7 @@ class VCardTemp extends PluginClass {
          * (String) jid - optional - The name of the entity to request the vCard
          *     If no jid is given, this function retrieves the current user's vcard.
          * */
-  get(Function handlerCb, String jid, Function errorCb) {
+  get(Function handlerCb, String? jid, Function errorCb) {
     var iq = _buildIq("get", jid ?? Strophe.getBareJidFromJid(this.connection!.jid)!);
     return this.connection!.sendIQ(iq.tree(), handlerCb, errorCb);
   }
@@ -35,7 +35,7 @@ class VCardTemp extends PluginClass {
   /* Function
          *  Set an entity's vCard.
          */
-  set(Function handlerCb, VCardEl vCardEl, String jid, Function errorCb) {
+  set(Function handlerCb, VCardEl vCardEl, String? jid, Function errorCb) {
     if (vCardEl == null) return null;
     StanzaBuilder iq = _buildIq("set", jid ?? Strophe.getBareJidFromJid(this.connection!.jid)!, vCardEl.tree());
     return this.connection!.sendIQ(iq.tree(), handlerCb, errorCb);
@@ -65,7 +65,7 @@ class VCardEl {
   }
 
   set addresses(List<VCardElAddr> addr) {
-    if (addr != null) _addresses = addr;
+    _addresses = addr;
   }
 
   VCardEl(
@@ -150,7 +150,22 @@ class VCardEl {
         });
       }
     });
-    build.c('EMAIL').c('INTERNET').t(EMAIL).up().c('PREF').t(EMAIL).up().c('USERID').t(USERID).up().up().c('JABBERID').t(JABBERID).c('DESC').t(DESC);
+    build
+        .c('EMAIL')
+        .c('INTERNET')
+        .t(EMAIL)
+        .up()
+        .c('PREF')
+        .t(EMAIL)
+        .up()
+        .c('USERID')
+        .t(USERID)
+        .up()
+        .up()
+        .c('JABBERID')
+        .t(JABBERID)
+        .c('DESC')
+        .t(DESC);
     print(build.tree());
     return build.tree();
   }
@@ -167,7 +182,7 @@ class VCardElAddr {
   String REGION = '';
   String PCODE = '';
   String CTRY = '';
-  String typeAddr;
+  String typeAddr = 'WORK';
 
   VCardElAddr(this.typeAddr,
       {String? voiceNum,
@@ -195,7 +210,7 @@ class VCardElAddr {
   XmlElement? tree() {
     return Strophe.$build('addr', {})
         .c('TEL')
-        .c(typeAddr != null ? typeAddr.toUpperCase() : 'WORK')
+        .c(typeAddr.toUpperCase())
         .up()
         .c('VOICE')
         .up()
@@ -204,7 +219,7 @@ class VCardElAddr {
         .up()
         .up()
         .c('TEL')
-        .c(typeAddr != null ? typeAddr.toUpperCase() : 'WORK')
+        .c(typeAddr.toUpperCase())
         .up()
         .c('FAX')
         .up()
@@ -213,7 +228,7 @@ class VCardElAddr {
         .up()
         .up()
         .c('TEL')
-        .c(typeAddr != null ? typeAddr.toUpperCase() : 'WORK')
+        .c(typeAddr.toUpperCase())
         .up()
         .c('MSG')
         .up()

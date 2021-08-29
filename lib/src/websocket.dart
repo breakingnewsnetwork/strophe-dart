@@ -166,11 +166,11 @@ class StropheWebSocket extends ServiceType {
   ///
   /// Parameters:
   /// (Strophe.Request) bodyWrap - The received stanza.
-  connectCb(bodyWrap) {
-    this._connectCb(bodyWrap);
+  int? connectCb(bodyWrap) {
+    return this._connectCb(bodyWrap);
   }
 
-  _connectCb(bodyWrap) {
+  int? _connectCb(bodyWrap) {
     bool error = this._checkStreamError(bodyWrap, Strophe.Status['CONNFAIL']);
     if (error) {
       return Strophe.Status['CONNFAIL'];

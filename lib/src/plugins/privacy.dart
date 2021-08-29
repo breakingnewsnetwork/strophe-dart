@@ -184,7 +184,7 @@ class PrivacyPlugin extends PluginClass {
   ///    (String) name - List name.
   ///    (Function) successCallback - Called upon successful load.
   ///    (Function) failCallback - Called upon fail load.
-  loadList(String name, [Function? successCallback, Function? failCallback]) {
+  loadList(String? name, [Function? successCallback, Function? failCallback]) {
     name = name ?? '';
     this.connection!.sendIQ(
         Strophe.$iq({'type': "get", 'id': this.connection!.getUniqueId("privacy")})
@@ -209,7 +209,7 @@ class PrivacyPlugin extends PluginClass {
           int nodesSize = blockNodes.length;
           for (int k = 0; k < nodesSize; ++k) blocks.add((blockNodes[k] as XmlElement).name.qualified);
           listModel.items.add(this.newItem(item.getAttribute('type'), item.getAttribute('value'), item.getAttribute('action'),
-              int.parse(item.getAttribute('order')!) ?? 0, blocks));
+              int.parse(item.getAttribute('order') ?? '0'), blocks));
         }
       }
       if (successCallback != null)

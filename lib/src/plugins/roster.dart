@@ -8,7 +8,7 @@ class RosterPlugin extends PluginClass {
 
   late List<Function> _callbacksRequest;
 
-  List<RosterItem>? items;
+  List<RosterItem> items = [];
 
   String? ver;
 
@@ -61,7 +61,8 @@ class RosterPlugin extends PluginClass {
         oldCallback!(status, condition, ele);
       }
     };
-    conn.connect = (String jid, String pass, Function callback, [int? wait, int? hold, String? route, String? authcid]) {
+    conn.connect =
+        (String jid, String pass, Function callback, [int? wait, int? hold, String? route, String? authcid]) {
       oldCallback = callback;
       callback = newCallback;
       _connect(jid, pass, callback, wait, hold, route, authcid);
@@ -115,11 +116,11 @@ class RosterPlugin extends PluginClass {
   /// Parameters:
   ///   (Function) callback
   registerCallback(Function callback) {
-    if (callback != null) this._callbacks.add(callback);
+    this._callbacks.add(callback);
   }
 
   registerRequestCallback(Function callback) {
-    if (callback != null) this._callbacksRequest.add(callback);
+    this._callbacksRequest.add(callback);
   }
 
   /// Function: findItem
@@ -128,11 +129,9 @@ class RosterPlugin extends PluginClass {
   /// Parameters:
   ///     (String) jid
   RosterItem? findItem(String? jid) {
-    if (this.items != null) {
-      for (int i = 0; i < this.items!.length; i++) {
-        if (this.items![i] != null && this.items![i].jid == jid) {
-          return this.items![i];
-        }
+    for (int i = 0; i < this.items.length; i++) {
+      if (this.items[i].jid == jid) {
+        return this.items[i];
       }
     }
     return null;
@@ -144,9 +143,9 @@ class RosterPlugin extends PluginClass {
   /// Parameters:
   ///     (String) jid
   bool removeItem(String? jid) {
-    for (int i = 0; i < this.items!.length; i++) {
-      if (this.items![i] != null && this.items![i].jid == jid) {
-        this.items!.remove(i);
+    for (int i = 0; i < this.items.length; i++) {
+      if (this.items[i].jid == jid) {
+        this.items.remove(i);
         return true;
       }
     }
@@ -216,7 +215,8 @@ class RosterPlugin extends PluginClass {
   ///   (Array) groups
   ///   (Function) callback
   add(String jid, String name, [List<String>? groups, Function? callback]) {
-    StanzaBuilder iq = Strophe.$iq({'type': 'set'}).c('query', {'xmlns': Strophe.NS['ROSTER']}).c('item', {'jid': jid, 'name': name});
+    StanzaBuilder iq =
+        Strophe.$iq({'type': 'set'}).c('query', {'xmlns': Strophe.NS['ROSTER']}).c('item', {'jid': jid, 'name': name});
     if (groups != null) {
       for (int i = 0; i < groups.length; i++) {
         iq.c('group').t(groups[i]).up();
@@ -240,7 +240,8 @@ class RosterPlugin extends PluginClass {
     }
     String newName = name ?? item.name!;
     List newGroups = groups ?? item.groups!;
-    StanzaBuilder iq = Strophe.$iq({'type': 'set'}).c('query', {'xmlns': Strophe.NS['ROSTER']}).c('item', {'jid': item.jid, 'name': newName});
+    StanzaBuilder iq = Strophe.$iq({'type': 'set'})
+        .c('query', {'xmlns': Strophe.NS['ROSTER']}).c('item', {'jid': item.jid, 'name': newName});
     for (int i = 0; i < newGroups.length; i++) {
       iq.c('group').t(newGroups[i]).up();
     }
@@ -258,8 +259,8 @@ class RosterPlugin extends PluginClass {
     if (item == null) {
       throw "item not found";
     }
-    StanzaBuilder iq =
-        Strophe.$iq({'type': 'set'}).c('query', {'xmlns': Strophe.NS['ROSTER']}).c('item', {'jid': item.jid, 'subscription': "remove"});
+    StanzaBuilder iq = Strophe.$iq({'type': 'set'})
+        .c('query', {'xmlns': Strophe.NS['ROSTER']}).c('item', {'jid': item.jid, 'subscription': "remove"});
     this.connection!.sendIQ(iq.tree(), callback, callback);
   }
 
@@ -268,9 +269,7 @@ class RosterPlugin extends PluginClass {
   _onReceiveRosterSuccess(Function userCallback, xml.XmlElement stanza) {
     this._updateItems(stanza);
     this._call_backs(this.items);
-    if (userCallback != null) {
-      userCallback(this.items);
-    }
+    userCallback(this.items);
   }
 
   /// PrivateFunction: _onReceiveRosterError
@@ -300,9 +299,15 @@ class RosterPlugin extends PluginClass {
     } else if (type == null || type == '') {
       // TODO: add timestamp
       item.resources[Strophe.getResourceFromJid(jid!)] = {
-        'show': (presence.findAllElements('show').length > 0) ? Strophe.getText(presence.findAllElements('show').toList()[0]) : "",
-        'status': (presence.findAllElements('status').length > 0) ? Strophe.getText(presence.findAllElements('status').toList()[0]) : "",
-        'priority': (presence.findAllElements('priority').length > 0) ? Strophe.getText(presence.findAllElements('priority').toList()[0]) : ""
+        'show': (presence.findAllElements('show').length > 0)
+            ? Strophe.getText(presence.findAllElements('show').toList()[0])
+            : "",
+        'status': (presence.findAllElements('status').length > 0)
+            ? Strophe.getText(presence.findAllElements('status').toList()[0])
+            : "",
+        'priority': (presence.findAllElements('priority').length > 0)
+            ? Strophe.getText(presence.findAllElements('priority').toList()[0])
+            : ""
       };
     } else {
       // Stanza is not a presence notification. (It's probably a subscription type stanza.)
@@ -338,7 +343,10 @@ class RosterPlugin extends PluginClass {
     String? id = iq.getAttribute('id');
     String? from = iq.getAttribute('from');
     // Receiving client MUST ignore stanza unless it has no from or from = user's JID.
-    if (from != null && from != "" && from != this.connection!.jid && from != Strophe.getBareJidFromJid(this.connection!.jid)) return true;
+    if (from != null &&
+        from != "" &&
+        from != this.connection!.jid &&
+        from != Strophe.getBareJidFromJid(this.connection!.jid)) return true;
     StanzaBuilder iqresult = Strophe.$iq({'type': 'result', 'id': id, 'from': this.connection!.jid});
     this.connection!.send(iqresult);
     this._updateItems(iq);
@@ -388,12 +396,12 @@ class RosterPlugin extends PluginClass {
     RosterItem? item = this.findItem(jid);
     RosterItem? previousItem;
     if (item == null) {
-      item = new RosterItem.fromMap({'name': name, 'jid': jid, 'subscription': subscription, 'ask': ask, 'groups': groups, 'resources': {}});
-      if (this.items != null) {
-        this.items!.add(item);
-      }
+      item = new RosterItem.fromMap(
+          {'name': name, 'jid': jid, 'subscription': subscription, 'ask': ask, 'groups': groups, 'resources': {}});
+      this.items.add(item);
     } else {
-      previousItem = new RosterItem.fromMap({'name': item.name, 'subscription': item.subscription, 'ask': item.ask, 'groups': item.groups});
+      previousItem = new RosterItem.fromMap(
+          {'name': item.name, 'subscription': item.subscription, 'ask': item.ask, 'groups': item.groups});
       item.name = name;
       item.subscription = subscription;
       item.ask = ask;

@@ -26,7 +26,7 @@ class PrivateStorage extends PluginClass {
   /// (XML) data   - the data you want to save
   /// (Function) success - Callback function on success
   /// (Function) error - Callback function on error
-  set(String tag, String ns, data, [Function? success, Function? error]) {
+  set(String? tag, String? ns, data, [Function? success, Function? error]) {
     String id = this.connection!.getUniqueId('saveXML');
     ns = ns ?? 'namespace';
     tag = tag ?? 'tag';
@@ -48,7 +48,7 @@ class PrivateStorage extends PluginClass {
   /// (String) ns  - the namespace
   /// (Function) success - Callback function on success
   /// (Function) error - Callback function on error
-  get(String tag, String ns, Function success, [Function? error]) {
+  get(String? tag, String? ns, Function success, [Function? error]) {
     String id = this.connection!.getUniqueId('loadXML');
     ns = ns ?? 'namespace';
     tag = tag ?? 'tag';

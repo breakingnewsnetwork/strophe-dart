@@ -174,9 +174,9 @@ class StropheBosh extends ServiceType {
     this._conn.authenticated = true;
     this._conn.connected = true;
 
-    this.wait = wait ?? this.wait;
-    this.hold = hold ?? this.hold;
-    this.window = wind ?? this.window;
+    this.wait = wait;
+    this.hold = hold;
+    this.window = wind;
 
     this._conn.changeConnectStatus(Strophe.Status['ATTACHED'], null);
   }
@@ -203,7 +203,7 @@ class StropheBosh extends ServiceType {
     this._restore(jid, callback, wait, hold, wind);
   }
 
-  _restore(String jid, Function callback, int wait, int hold, int wind) {
+  _restore(String? jid, Function callback, int wait, int hold, int wind) {
     var session = JsonCodec().decode(SessionStorage.getItem('strophe-bosh-session')!);
     if (session != null &&
         session.rid &&
@@ -248,11 +248,11 @@ class StropheBosh extends ServiceType {
   ///  This handler is used to process the Bosh-part of the initial request.
   ///  Parameters:
   ///    (Request) bodyWrap - The received stanza.
-  connectCb(xml.XmlElement bodyWrap) {
-    this._connectCb(bodyWrap);
+  int? connectCb(xml.XmlElement bodyWrap) {
+    return this._connectCb(bodyWrap);
   }
 
-  _connectCb(xml.XmlElement bodyWrap) {
+  int? _connectCb(xml.XmlElement bodyWrap) {
     String? typ = bodyWrap.getAttribute("type");
     String? cond;
     List<xml.XmlElement>? conflict;
@@ -626,7 +626,7 @@ class StropheBosh extends ServiceType {
       req.sends++;
 
       //if (this._conn.xmlOutput != Strophe.Connection.xmlOutput) {
-      if (req.xmlData!.name == this.strip && req.xmlData!.children.length > 0) {
+      if (req.xmlData?.name.local == this.strip && req.xmlData!.children.length > 0) {
         this._conn.xmlOutput(req.xmlData!.firstChild as xml.XmlElement?);
       } else {
         this._conn.xmlOutput(req.xmlData);
@@ -674,7 +674,7 @@ class StropheBosh extends ServiceType {
     request.bodyFields = map as Map<String, String>;
     req.xhr.send(request).then((http.StreamedResponse response) {
       req.response = response as http.Response;
-    }).catchError(() {});
+    }).catchError((err) {});
   }
 
   /// PrivateFunction: _removeRequest
@@ -901,9 +901,6 @@ class StropheRequest {
     try {
       node = xml.XmlDocument.parse(body).rootElement;
       Strophe.error("responseXML: " + Strophe.serialize(node)!);
-      if (node == null) {
-        throw {'message': 'Parsing produced null node'};
-      }
     } catch (e) {
       // if (node.name == "parsererror") {
       Strophe.error("invalid response received" + e.toString());

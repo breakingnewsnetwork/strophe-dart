@@ -1007,7 +1007,7 @@ class RoomConfig {
             field = ref[l] as XmlElement?;
 
             if (field!.getAttribute('type') == null || field.getAttribute('type')!.isEmpty) {
-              this.x!.add({"var": field.getAttribute("var"), 'label': field.getAttribute("label") ?? "", 'value': field.firstChild!.text ?? ""});
+              this.x!.add({"var": field.getAttribute("var"), 'label': field.getAttribute("label") ?? "", 'value': field.firstChild!.text});
             }
           }
       }

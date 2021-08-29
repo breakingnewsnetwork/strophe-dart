@@ -405,7 +405,7 @@ class StanzaHandler {
   ///    A String.
   ///
   String toString() {
-    return "{Handler: " + this.handler.toString() + "(" + this.name! + "," + this.id! + "," + this.ns! + ")}";
+    return "{Handler: " + this.handler.toString() + "(" + (this.name ?? '') + "," + (this.id ?? '') + "," + (this.ns ?? '') + ")}";
   }
 }
 
@@ -699,7 +699,7 @@ class StropheConnection {
       this._requests = [];
       this._uniqueId = 0;
     };
-    this._connectCb = (req, Function? _callback, String raw) {
+    this._connectCb = (req, Function? _callback, String? raw) {
       this.connected = true;
 
       xml.XmlElement? bodyWrap;
@@ -731,7 +731,7 @@ class StropheConnection {
       }
       //}
 
-      int conncheck = this._proto!.connectCb(bodyWrap);
+      int? conncheck = this._proto!.connectCb(bodyWrap);
       if (conncheck == Strophe.Status['CONNFAIL']) {
         return;
       }
@@ -2763,7 +2763,7 @@ abstract class ServiceType {
     return true;
   }
 
-  connectCb(xml.XmlElement bodyWrap) {}
+  int? connectCb(xml.XmlElement bodyWrap) {}
 
   void onDisconnectTimeout() {}
 
