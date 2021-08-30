@@ -197,7 +197,7 @@ class StanzaBuilder {
   /// Returns:
   /// The Strophe.Builder object.
   StanzaBuilder c(String name, [Map<String, dynamic>? attrs, dynamic text]) {
-    xml.XmlNode? child = Strophe.xmlElement(name, attrs: attrs, text: text);
+    xml.XmlNode child = Strophe.xmlElement(name, attrs: attrs, text: text);
     xml.XmlElement xmlElement = child is xml.XmlDocument ? child.rootElement : (child as xml.XmlElement?)!;
 
     xml.XmlNode currentNode = this.nodeTree.children[0];

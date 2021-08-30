@@ -204,12 +204,14 @@ class Strophe {
   ///  Returns:
   ///    A new XML DOM element.
   static xml.XmlNode xmlElement(String name, {dynamic attrs, String? text}) {
-    if (name.trim().isEmpty) {
+    assert(name.trim().isNotEmpty);
+    assert(attrs == null || attrs is List<List<String>> || attrs is! Map<String, dynamic>);
+    /*if (name.trim().isEmpty) {
       throw Exception('name must be not empty');
     }
     if (attrs != null && (attrs is! List<List<String>>) && (attrs is! Map<String, dynamic>)) {
       throw Exception('attrs must be List<List<String>> or Map<String, dynamic>');
-    }
+    }*/
     Map<String, String> attributes = {};
     if (attrs != null) {
       if (attrs is List<List<String>>) {
@@ -668,7 +670,7 @@ class Strophe {
   ///
   ///  Returns:
   ///    A new Strophe.Builder.
-  static StanzaBuilder Builder(String name, {Map<String?, dynamic>? attrs}) {
+  static StanzaBuilder Builder(String name, {Map<String, dynamic>? attrs}) {
     return StanzaBuilder(name, attrs);
   }
 
@@ -753,7 +755,7 @@ class Strophe {
     return stanzaTimedHandler;
   }
 
-  static StanzaBuilder $build(String name, Map<String, dynamic> attrs) {
+  static StanzaBuilder $build(String name, Map<String, dynamic>? attrs) {
     return Strophe.Builder(name, attrs: attrs);
   }
 
@@ -761,7 +763,7 @@ class Strophe {
     return Strophe.Builder("message", attrs: attrs);
   }
 
-  static StanzaBuilder $iq([Map<String?, dynamic>? attrs]) {
+  static StanzaBuilder $iq([Map<String, dynamic>? attrs]) {
     return Strophe.Builder("iq", attrs: attrs);
   }
 

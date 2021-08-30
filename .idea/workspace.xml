@@ -10,8 +10,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/core.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/core.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/enums.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/enums.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/plugins/muc.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/plugins/muc.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/plugins/pubsub.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/plugins/pubsub.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/plugins/disco.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/plugins/disco.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

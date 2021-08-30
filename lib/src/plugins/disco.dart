@@ -137,7 +137,7 @@ class DiscoPlugin extends PluginClass {
   StanzaBuilder _buildIQResult(XmlElement stanza, Map<String, String?> queryAttrs) {
     String? id = stanza.getAttribute('id');
     String? from = stanza.getAttribute('from');
-    StanzaBuilder iqresult = Strophe.$iq({'type': 'result', id: id});
+    StanzaBuilder iqresult = Strophe.$iq({'type': 'result', 'id': id});
 
     if (from != null) {
       iqresult.attrs({'to': from});
