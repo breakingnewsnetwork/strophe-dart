@@ -205,7 +205,7 @@ class Strophe {
   ///    A new XML DOM element.
   static xml.XmlNode xmlElement(String name, {dynamic attrs, String? text}) {
     assert(name.trim().isNotEmpty);
-    assert(attrs == null || attrs is List<List<String>> || attrs is! Map<String, dynamic>);
+    assert(attrs == null || attrs is List<List<String>> || attrs is Map<String, dynamic>);
     /*if (name.trim().isEmpty) {
       throw Exception('name must be not empty');
     }

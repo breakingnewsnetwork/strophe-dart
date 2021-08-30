@@ -9,8 +9,6 @@
     <list default="true" id="2c28d36b-b5ce-4bc8-ba12-d5abd04f1a5d" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/core.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/core.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/enums.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/enums.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/plugins/disco.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/plugins/disco.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
