@@ -73,7 +73,7 @@ class StanzaBuilder {
   List<int> node = [];
   late xml.XmlNode nodeTree;
 
-  StanzaBuilder(String name, [Map<String?, dynamic>? attrs]) {
+  StanzaBuilder(String name, [Map<String, dynamic>? attrs]) {
     // Set correct namespace for jabber:client elements
     if (name == "presence" || name == "message" || name == "iq") {
       if (attrs != null && attrs['xmlns'] == null) {

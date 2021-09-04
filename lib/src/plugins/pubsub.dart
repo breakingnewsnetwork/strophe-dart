@@ -143,11 +143,10 @@ Extend connection object to have plugin name 'pubsub'.
     if (conn.disco != null) conn.disco!.addFeature(Strophe.NS['PUBSUB']);
   }
 
-  /**Function
-      Parameters:
-      (String) jid - The node owner's jid.
-      (String) service - The name of the pubsub service.
-   */
+  /// Function
+  ///   Parameters:
+  ///   (String) jid - The node owner's jid.
+  ///   (String) service - The name of the pubsub service.
   connect(String? jid, [String? service]) {
     if (service == null) {
       service = jid;
@@ -288,18 +287,17 @@ Extend connection object to have plugin name 'pubsub'.
     return iqid;
   }
 
-  /***Function
-      Subscribe to a node in order to receive event items.
-      Parameters:
-      (String) node         - The name of the pubsub node.
-      (Array) options       - The configuration options for the  node.
-      (Function) event_cb   - Used to recieve subscription events.
-      (Function) success    - callback function for successful node creation.
-      (Function) error      - error callback function.
-      (Boolean) barejid     - use barejid creation was sucessful.
-      Returns:
-      Iq id used to send subscription.
-   */
+  /// Function
+  /// Subscribe to a node in order to receive event items.
+  ///   Parameters:
+  ///   (String) node         - The name of the pubsub node.
+  ///   (Array) options       - The configuration options for the  node.
+  ///   (Function) event_cb   - Used to recieve subscription events.
+  ///   (Function) success    - callback function for successful node creation.
+  ///   (Function) error      - error callback function.
+  ///   (Boolean) barejid     - use barejid creation was sucessful.
+  ///   Returns:
+  ///   Iq id used to send subscription.
   subscribe(String node, [String? service, Map<String, dynamic>? options, Function? eventcb, Function? success, Function? error, bool barejid = true]) {
     String iqid = this.connection!.getUniqueId("subscribenode");
 
@@ -321,13 +319,12 @@ Extend connection object to have plugin name 'pubsub'.
     return iqid;
   }
 
-  /***Function
-      Unsubscribe from a node.
-      Parameters:
-      (String) node       - The name of the pubsub node.
-      (Function) success  - callback function for successful node creation.
-      (Function) error    - error callback function.
-   */
+  /// Function
+  ///   Unsubscribe from a node.
+  ///   Parameters:
+  ///   (String) node       - The name of the pubsub node.
+  ///   (Function) success  - callback function for successful node creation.
+  ///   (Function) error    - error callback function.
   unsubscribe(String node, String? jid, [String? service, String? subid, Function? success, Function? error]) {
     String iqid = this.connection!.getUniqueId("pubsubunsubscribenode");
     service = service != null && service.isNotEmpty ? service : this.service;
@@ -340,14 +337,13 @@ Extend connection object to have plugin name 'pubsub'.
     return iqid;
   }
 
-  /***Function
-      Publish and item to the given pubsub node.
-      Parameters:
-      (String) node -  The name of the pubsub node.
-      (Array) items -  The list of items to be published.
-      (Function) call_back - Used to determine if node
-      creation was sucessful.
-   */
+  /// Function
+  ///  Publish and item to the given pubsub node.
+  ///  Parameters:
+  /// (String) node -  The name of the pubsub node.
+  /// (Array) items -  The list of items to be published.
+  /// (Function) call_back - Used to determine if node
+  /// creation was successful.
   String publish(String node, List<Map<String, dynamic>> items, Function callback) {
     String iqid = this.connection!.getUniqueId("pubsubpublishnode");
 
