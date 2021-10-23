@@ -47,7 +47,7 @@ class RosterPlugin extends PluginClass {
     Function? oldCallback;
     Function _connect = conn.connect;
     Function _attach = conn.attach;
-    Function newCallback = (int status, condition, ele) {
+    Function newCallback = (int? status, condition, ele) {
       if (status == Strophe.Status['ATTACHED'] || status == Strophe.Status['CONNECTED']) {
         try {
           // Presence subscription
