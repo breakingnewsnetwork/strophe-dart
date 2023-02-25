@@ -1,5 +1,5 @@
 name: strophe
-description: A new flutter package project.
+description: XMPP client.
 version: 1.0.0
 homepage: https://github.com/developerandre/strophe-dart
 

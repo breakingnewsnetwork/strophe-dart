@@ -266,19 +266,22 @@ class StropheWebSocket extends ServiceType {
   /// Parameters:
   /// (Request) pres - This stanza will be sent before disconnecting.
   void _disconnect([StanzaBuilder? pres]) {
-    if (this.socket != null && this.socket!.readyState != WebSocket.closed) {
-      if (pres != null) {
-        this._conn.send(pres.tree());
-      }
+    if (this.socket != null) {
+      if(this.socket!.readyState != WebSocket.closed) {
+        if (pres != null) {
+          this._conn.send(pres.tree());
+        }
 
-      StanzaBuilder close = Strophe.$build("close", {"xmlns": Strophe.NS['FRAMING']});
-      this._conn.xmlOutput(close.tree());
-      String? closeString = Strophe.serialize(close.tree());
-      this._conn.rawOutput(closeString);
-      try {
-        if (this.socket != null) this.socket!.add(closeString);
-      } catch (e) {
-        Strophe.info("Couldn't send <close /> tag.");
+        StanzaBuilder close = Strophe.$build(
+            "close", {"xmlns": Strophe.NS['FRAMING']});
+        this._conn.xmlOutput(close.tree());
+        String? closeString = Strophe.serialize(close.tree());
+        this._conn.rawOutput(closeString);
+        try {
+          if (this.socket != null) this.socket!.add(closeString);
+        } catch (e) {
+          Strophe.info("Couldn't send <close /> tag.");
+        }
       }
       this._conn.doDisconnect();
     }
@@ -310,12 +313,14 @@ class StropheWebSocket extends ServiceType {
   void _closeSocket() {
     if (this.socket != null) {
       try {
-        this.socket!.handleError(() {});
-        this.socketListen!.cancel();
+        this.socket!.handleError((error) {});
+        this.socketListen?.cancel();
         this.socketListen = null;
-        this.socket!.close();
+        this.socket?.close();
         this.socket = null;
-      } catch (e) {}
+      } catch (e) {
+        print(e);
+      }
     }
   }
 
