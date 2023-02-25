@@ -9,10 +9,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2c28d36b-b5ce-4bc8-ba12-d5abd04f1a5d" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
-    </list>
+    <list default="true" id="2c28d36b-b5ce-4bc8-ba12-d5abd04f1a5d" name="Default" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -92,12 +89,6 @@
       <updated>1538826581702</updated>
     </task>
     <servers />
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="2288" y="506" width="587" height="534" key="find.popup" timestamp="1630236717160">
-      <screen x="1920" y="0" width="1920" height="1040" />
-    </state>
-    <state x="2288" y="506" width="587" height="534" key="find.popup/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1630236717160" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
